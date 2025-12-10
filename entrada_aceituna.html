@@ -24,6 +24,25 @@
             line-height: 1.5;
         }
 
+        /* Custom Scrollbar for modals */
+        .modal-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        .modal-scroll::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+
+        .modal-scroll::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
         /* Header */
         .header {
             background: #ffffff;
@@ -2095,60 +2114,44 @@
                             <h1 class="page-title" style="color: #3d4f31;">🫒 Almacén de Aceitunas</h1>
                             <p class="page-subtitle">Control de inventario y ubicaciones de stock</p>
                         </div>
-                        <button onclick="volverAlmacenSeleccion()"
-                            style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.7rem 1.5rem; border-radius: 10px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
-                            ← Volver
-                        </button>
+                        <div style="display: flex; gap: 0.8rem;">
+                            <button onclick="abrirReubicacionDesdeAlmacen()"
+                                style="background: linear-gradient(135deg, #7c3aed, #8b5cf6); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);">
+                                🔄 Reubicación
+                            </button>
+                            <button onclick="volverAlmacenSeleccion()"
+                                style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.7rem 1.5rem; border-radius: 10px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                                ← Volver
+                            </button>
+                        </div>
                     </div>
 
                     <div class="card">
-                        <div class="almacen-header">
-                            <div class="search-box">
-                                <input type="text" id="searchCodigo" placeholder="Buscar por código o QR...">
-                                <button class="btn-search" onclick="buscarPorCodigo()">Buscar</button>
+                        <div class="almacen-header"
+                            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div class="search-box" style="display: flex; gap: 0.5rem; flex: 1; min-width: 250px;">
+                                <input type="text" id="searchCodigo" class="form-input"
+                                    placeholder="Buscar lote o calibre..." style="flex: 1;">
+                                <button class="btn-search" onclick="buscarEnAlmacen()"
+                                    style="background: #3d4f31; color: white; border: none; padding: 0.6rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 500;">🔍
+                                    Buscar</button>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button onclick="abrirModalNuevaFila()"
+                                    style="background: linear-gradient(135deg, #3d4f31, #5a7247); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                    ➕ Nueva Fila
+                                </button>
                             </div>
                         </div>
 
-                        <div class="cuadrantes-container" id="cuadrantesContainer">
-                            <!-- Row A -->
-                            <div class="cuadrante-row">
-                                <div class="cuadrante-row-title">Fila A</div>
-                                <div class="cuadrante-grid" id="row-A"></div>
-                            </div>
-                            <!-- Row B -->
-                            <div class="cuadrante-row">
-                                <div class="cuadrante-row-title">Fila B</div>
-                                <div class="cuadrante-grid" id="row-B"></div>
-                            </div>
-                            <!-- Row C -->
-                            <div class="cuadrante-row">
-                                <div class="cuadrante-row-title">Fila C</div>
-                                <div class="cuadrante-grid" id="row-C"></div>
-                            </div>
-                            <!-- Row D -->
-                            <div class="cuadrante-row">
-                                <div class="cuadrante-row-title">Fila D</div>
-                                <div class="cuadrante-grid" id="row-D"></div>
-                            </div>
-                            <!-- Row E -->
-                            <div class="cuadrante-row">
-                                <div class="cuadrante-row-title">Fila E</div>
-                                <div class="cuadrante-grid" id="row-E"></div>
-                            </div>
-                            <!-- Row F -->
-                            <div class="cuadrante-row">
-                                <div class="cuadrante-row-title">Fila F</div>
-                                <div class="cuadrante-grid" id="row-F"></div>
-                            </div>
-                            <!-- Row G -->
-                            <div class="cuadrante-row">
-                                <div class="cuadrante-row-title">Fila G</div>
-                                <div class="cuadrante-grid" id="row-G"></div>
-                            </div>
-                            <!-- Row H -->
-                            <div class="cuadrante-row">
-                                <div class="cuadrante-row-title">Fila H</div>
-                                <div class="cuadrante-grid" id="row-H"></div>
+                        <!-- Contenedor dinámico de filas -->
+                        <div id="filasAlmacenContainer" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                            <!-- Las filas se renderizan dinámicamente aquí -->
+                            <div id="sinFilas" style="text-align: center; padding: 3rem; color: #94a3b8;">
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+                                <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">No hay filas en el almacén</p>
+                                <p style="font-size: 0.9rem;">Haz clic en "Nueva Fila" para comenzar a organizar tu
+                                    almacén</p>
                             </div>
                         </div>
                     </div>
@@ -2668,11 +2671,11 @@
                     </div>
 
                     <div
-                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 1rem; min-height: 50vh;">
+                        style="display: flex; justify-content: center; gap: 2rem; padding: 1rem; min-height: 40vh; flex-wrap: wrap;">
                         <!-- Ventas -->
                         <div onclick="mostrarSalidaVentas()" style="background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #4ade80 100%); 
                                    border-radius: 24px; 
-                                   padding: 3rem; 
+                                   padding: 3rem 3rem; 
                                    display: flex; 
                                    flex-direction: column; 
                                    justify-content: center; 
@@ -2680,7 +2683,9 @@
                                    cursor: pointer; 
                                    transition: all 0.3s ease;
                                    box-shadow: 0 10px 40px rgba(22, 163, 74, 0.3);
-                                   border: 3px solid transparent;"
+                                   border: 3px solid transparent;
+                                   max-width: 340px;
+                                   width: 100%;"
                             onmouseover="this.style.transform='translateY(-8px) scale(1.02)'; this.style.boxShadow='0 20px 60px rgba(22, 163, 74, 0.4)';"
                             onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 10px 40px rgba(22, 163, 74, 0.3)';">
                             <div style="font-size: 4rem; margin-bottom: 1.5rem;">💰</div>
@@ -2697,33 +2702,44 @@
                             </div>
                         </div>
 
-                        <!-- Reubicación -->
-                        <div onclick="mostrarSalidaReubicacion()" style="background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a78bfa 100%); 
+                        <!-- Préstamos -->
+                        <div onclick="mostrarSalidaPrestamos()" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #fcd34d 100%); 
                                    border-radius: 24px; 
-                                   padding: 3rem; 
+                                   padding: 3rem 3rem; 
                                    display: flex; 
                                    flex-direction: column; 
                                    justify-content: center; 
                                    align-items: center; 
                                    cursor: pointer; 
                                    transition: all 0.3s ease;
-                                   box-shadow: 0 10px 40px rgba(124, 58, 237, 0.3);
-                                   border: 3px solid transparent;"
-                            onmouseover="this.style.transform='translateY(-8px) scale(1.02)'; this.style.boxShadow='0 20px 60px rgba(124, 58, 237, 0.4)';"
-                            onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 10px 40px rgba(124, 58, 237, 0.3)';">
-                            <div style="font-size: 4rem; margin-bottom: 1.5rem;">🔄</div>
+                                   box-shadow: 0 10px 40px rgba(245, 158, 11, 0.3);
+                                   border: 3px solid transparent;
+                                   max-width: 340px;
+                                   width: 100%;"
+                            onmouseover="this.style.transform='translateY(-8px) scale(1.02)'; this.style.boxShadow='0 20px 60px rgba(245, 158, 11, 0.4)';"
+                            onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 10px 40px rgba(245, 158, 11, 0.3)';">
+                            <div style="font-size: 4rem; margin-bottom: 1.5rem;">🤝</div>
                             <h2
                                 style="color: white; font-size: 1.8rem; margin-bottom: 1rem; font-weight: 700; text-align: center;">
-                                Reubicación</h2>
+                                Préstamos</h2>
                             <p
                                 style="color: rgba(255,255,255,0.9); font-size: 1rem; text-align: center; max-width: 280px;">
-                                Mover productos a otro destino interno
+                                Préstamo temporal a bodegas
                             </p>
                             <div
                                 style="margin-top: 1.5rem; background: rgba(255,255,255,0.2); padding: 0.8rem 2rem; border-radius: 30px; color: white; font-weight: 600;">
-                                Registrar Reubicación →
+                                Registrar Préstamo →
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Nota informativa sobre Reubicación -->
+                    <div
+                        style="text-align: center; padding: 1rem; background: #f5f3ff; border-radius: 12px; margin-top: 1rem;">
+                        <p style="color: #7c3aed; margin: 0; font-size: 0.9rem;">
+                            💡 <strong>¿Buscas Reubicación?</strong> Ahora está en <strong>Almacén → Almacén de
+                                Aceitunas</strong>
+                        </p>
                     </div>
                 </div>
 
@@ -2990,6 +3006,246 @@
                     </div>
                 </div>
 
+                <!-- Contenido de Préstamos -->
+                <div id="salidaPrestamosContent" style="display: none;">
+                    <div class="page-header"
+                        style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 class="page-title" style="color: #f59e0b;">🤝 Préstamos</h1>
+                            <p class="page-subtitle">Registro de préstamos temporales a bodegas</p>
+                        </div>
+                        <button onclick="volverSalidaSeleccion()"
+                            style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.7rem 1.5rem; border-radius: 10px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                            ← Volver
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <!-- Formulario de Préstamo -->
+                        <div
+                            style="margin-bottom: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, #fef3c7, #fef9c3); border-radius: 12px; border: 2px solid #f59e0b;">
+                            <h4
+                                style="color: #b45309; margin-bottom: 1.2rem; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                📋 Información del Préstamo
+                            </h4>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">Responsable *</label>
+                                    <input type="text" class="form-input" id="prestamoResponsable"
+                                        placeholder="Nombre del responsable">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Fecha *</label>
+                                    <input type="date" class="form-input" id="prestamoFecha">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Lote *</label>
+                                    <select class="form-select" id="prestamoLote" onchange="cargarCalibresPrestamo()">
+                                        <option value="">Seleccionar lote...</option>
+                                        <!-- Se llenará dinámicamente -->
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Destinatario -->
+                        <div
+                            style="margin-bottom: 1.5rem; padding: 1.5rem; background: #fffbeb; border-radius: 12px; border: 1px solid #fcd34d;">
+                            <h4
+                                style="color: #b45309; margin-bottom: 1.2rem; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                🏪 Información del Destinatario
+                            </h4>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">Nombre del Destinatario *</label>
+                                    <input type="text" class="form-input" id="prestamoDestinatario"
+                                        placeholder="Nombre de la persona o empresa">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Nombre de Bodega *</label>
+                                    <input type="text" class="form-input" id="prestamoBodega"
+                                        placeholder="Nombre de la bodega destino">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Dirección (Opcional)</label>
+                                    <input type="text" class="form-input" id="prestamoDireccion"
+                                        placeholder="Dirección de la bodega">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Teléfono de Contacto (Opcional)</label>
+                                    <input type="text" class="form-input" id="prestamoTelefono"
+                                        placeholder="Ej: 999-999-999">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detalle del Préstamo -->
+                        <div
+                            style="margin-bottom: 1.5rem; padding: 1.5rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                            <h4
+                                style="color: #1e293b; margin-bottom: 1.2rem; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                📦 Detalle del Producto
+                            </h4>
+
+                            <!-- Tipo de Préstamo -->
+                            <div
+                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                                <div id="btnPrestamoLoteCompleto" onclick="seleccionarTipoPrestamo('lote')"
+                                    style="background: #f1f5f9; border: 2px solid #e2e8f0; border-radius: 12px; padding: 1.2rem; text-align: center; cursor: pointer; transition: all 0.2s ease;">
+                                    <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">📦</div>
+                                    <div style="font-weight: 600; color: #1e293b;">Lote Completo</div>
+                                    <div style="font-size: 0.8rem; color: #64748b;">Prestar todo el lote seleccionado
+                                    </div>
+                                </div>
+                                <div id="btnPrestamoCalibre" onclick="seleccionarTipoPrestamo('calibres')"
+                                    style="background: #f1f5f9; border: 2px solid #e2e8f0; border-radius: 12px; padding: 1.2rem; text-align: center; cursor: pointer; transition: all 0.2s ease;">
+                                    <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">⚖️</div>
+                                    <div style="font-weight: 600; color: #1e293b;">Calibres Específicos</div>
+                                    <div style="font-size: 0.8rem; color: #64748b;">Seleccionar calibres individuales
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panel Lote Completo -->
+                            <div id="panelPrestamoLoteCompleto" style="display: none;">
+                                <div
+                                    style="background: linear-gradient(135deg, #fef3c7, #fef9c3); padding: 1rem; border-radius: 10px; border: 1px solid #fcd34d; margin-bottom: 1rem;">
+                                    <div
+                                        style="font-size: 0.8rem; color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">
+                                        📦 RESUMEN DEL LOTE</div>
+                                    <div id="resumenLotePrestamo" style="color: #78350f;"></div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                                    <div class="form-group">
+                                        <label class="form-label">Bidones Totales *</label>
+                                        <input type="number" class="form-input" id="prestamoBidonesLote" placeholder="0"
+                                            oninput="calcularTotalPrestamoLote()">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Kg por Bidón *</label>
+                                        <input type="number" class="form-input" id="prestamoKgBidonLote"
+                                            placeholder="60" step="0.1" oninput="calcularTotalPrestamoLote()"
+                                            value="60">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Total Kg</label>
+                                        <input type="text" class="form-input" id="prestamoKgTotalLote" value="0 Kg"
+                                            readonly style="background: #e2e8f0; font-weight: 600; color: #f59e0b;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panel Calibres Específicos -->
+                            <div id="panelPrestamoCalibre" style="display: none;">
+                                <div style="margin-bottom: 1rem;">
+                                    <div
+                                        style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.8rem; font-weight: 600;">
+                                        Seleccione los calibres a prestar:
+                                    </div>
+                                    <div id="listaCalibresPrestamo"
+                                        style="display: grid; grid-template-columns: 1fr; gap: 0.8rem; max-height: 300px; overflow-y: auto; padding-right: 0.5rem;">
+                                        <!-- Se llenará dinámicamente con checkboxes -->
+                                    </div>
+                                </div>
+                                <div
+                                    style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 1rem; border-radius: 10px; text-align: center;">
+                                    <div style="font-size: 0.8rem; opacity: 0.9;">TOTAL SELECCIONADO</div>
+                                    <div id="prestamoTotalCalibreSeleccionado"
+                                        style="font-size: 1.3rem; font-weight: 700;">0 Kg</div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Información Adicional -->
+                        <div
+                            style="margin-bottom: 1.5rem; padding: 1.5rem; background: #f0fdf4; border-radius: 12px; border: 1px solid #bbf7d0;">
+                            <h4
+                                style="color: #166534; margin-bottom: 1.2rem; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                📝 Información Adicional
+                            </h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">Fecha de Devolución Estimada</label>
+                                    <input type="date" class="form-input" id="prestamoFechaDevolucion">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Estado</label>
+                                    <select class="form-select" id="prestamoEstado">
+                                        <option value="pendiente">Pendiente de devolución</option>
+                                        <option value="parcial">Devolución parcial</option>
+                                        <option value="devuelto">Devuelto</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label class="form-label">Observaciones</label>
+                                    <textarea class="form-input" id="prestamoObservaciones" rows="3"
+                                        placeholder="Notas adicionales sobre el préstamo..."
+                                        style="resize: vertical;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+                            <button onclick="limpiarFormPrestamo()"
+                                style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.8rem 2rem; border-radius: 10px; font-weight: 500; cursor: pointer;">
+                                Limpiar
+                            </button>
+                            <button onclick="guardarPrestamo()"
+                                style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 0.8rem 2rem; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                                Guardar Préstamo
+                            </button>
+                        </div>
+
+                        <!-- Historial de Préstamos -->
+                        <div style="margin-top: 2rem; border-top: 2px solid #e2e8f0; padding-top: 1.5rem;">
+                            <h3
+                                style="color: #1e293b; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                📋 Historial de Préstamos
+                                <span id="prestamosCount"
+                                    style="background: #f59e0b; color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.8rem;">0</span>
+                            </h3>
+                            <table id="historialPrestamosTable"
+                                style="width: 100%; border-collapse: collapse; display: none;">
+                                <thead>
+                                    <tr style="background: linear-gradient(135deg, #fef3c7, #fef9c3);">
+                                        <th
+                                            style="padding: 0.8rem; text-align: left; border-bottom: 2px solid #f59e0b;">
+                                            Fecha</th>
+                                        <th
+                                            style="padding: 0.8rem; text-align: left; border-bottom: 2px solid #f59e0b;">
+                                            Lote</th>
+                                        <th
+                                            style="padding: 0.8rem; text-align: left; border-bottom: 2px solid #f59e0b;">
+                                            Destinatario</th>
+                                        <th
+                                            style="padding: 0.8rem; text-align: left; border-bottom: 2px solid #f59e0b;">
+                                            Bodega</th>
+                                        <th
+                                            style="padding: 0.8rem; text-align: right; border-bottom: 2px solid #f59e0b;">
+                                            Kg Total</th>
+                                        <th
+                                            style="padding: 0.8rem; text-align: center; border-bottom: 2px solid #f59e0b;">
+                                            Estado</th>
+                                        <th
+                                            style="padding: 0.8rem; text-align: center; border-bottom: 2px solid #f59e0b;">
+                                            Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historialPrestamosBody">
+                                    <!-- Se llenará dinámicamente -->
+                                </tbody>
+                            </table>
+                            <div id="noPrestamosMessage"
+                                style="display: none; text-align: center; padding: 2rem; color: #94a3b8;">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📭</div>
+                                <p>No hay préstamos registrados aún</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Contenido de Reubicación -->
                 <div id="salidaReubicacionContent" style="display: none;">
                     <div class="page-header"
@@ -2998,7 +3254,7 @@
                             <h1 class="page-title" style="color: #7c3aed;">🔄 Reubicación</h1>
                             <p class="page-subtitle">Mover productos a otro destino interno</p>
                         </div>
-                        <button onclick="volverSalidaSeleccion()"
+                        <button onclick="volverDesdeReubicacion()"
                             style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.7rem 1.5rem; border-radius: 10px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
                             ← Volver
                         </button>
@@ -3050,21 +3306,24 @@
                                     <div
                                         style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; margin-bottom: 0.3rem;">
                                         Código</div>
-                                    <div id="reubicacionInfoCodigo" style="font-weight: 700; color: #1e293b;">-</div>
+                                    <div id="reubicacionInfoCodigo" style="font-weight: 700; color: #1e293b;">-
+                                    </div>
                                 </div>
                                 <div
                                     style="background: white; padding: 0.8rem; border-radius: 8px; text-align: center;">
                                     <div
                                         style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; margin-bottom: 0.3rem;">
                                         Vendedor</div>
-                                    <div id="reubicacionInfoVendedor" style="font-weight: 600; color: #1e293b;">-</div>
+                                    <div id="reubicacionInfoVendedor" style="font-weight: 600; color: #1e293b;">-
+                                    </div>
                                 </div>
                                 <div
                                     style="background: white; padding: 0.8rem; border-radius: 8px; text-align: center;">
                                     <div
                                         style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; margin-bottom: 0.3rem;">
                                         Variedad</div>
-                                    <div id="reubicacionInfoVariedad" style="font-weight: 600; color: #1e293b;">-</div>
+                                    <div id="reubicacionInfoVariedad" style="font-weight: 600; color: #1e293b;">-
+                                    </div>
                                 </div>
                                 <div
                                     style="background: white; padding: 0.8rem; border-radius: 8px; text-align: center;">
@@ -3087,7 +3346,8 @@
                         <!-- Calibre y Cantidad -->
                         <div
                             style="margin-bottom: 1.5rem; padding: 1.2rem; background: #ede9fe; border-radius: 12px; border: 1px solid #c4b5fd;">
-                            <h4 style="color: #7c3aed; margin-bottom: 1rem; font-size: 0.95rem;">Calibre y Cantidad</h4>
+                            <h4 style="color: #7c3aed; margin-bottom: 1rem; font-size: 0.95rem;">Calibre y Cantidad
+                            </h4>
                             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
                                 <div class="form-group">
                                     <label class="form-label">Calibre *</label>
@@ -4072,6 +4332,33 @@
             mulata: ['Rosada', 'Verde']
         };
 
+        // ===== FUNCIÓN MODAL DE INFORMACIÓN =====
+        function mostrarModalInfo(titulo, contenidoHTML, icono = '📋') {
+            // Eliminar modal previo si existe
+            var modalPrevio = document.getElementById('modalInfoGeneral');
+            if (modalPrevio) modalPrevio.remove();
+
+            var html = '<div id="modalInfoGeneral" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; padding: 1rem;">';
+            html += '<div style="background: white; border-radius: 16px; width: 100%; max-width: 550px; max-height: 85vh; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">';
+            html += '<div style="background: linear-gradient(135deg, #3d4f31, #5a7247); color: white; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">';
+            html += '<div style="display: flex; align-items: center; gap: 0.8rem;"><span style="font-size: 1.5rem;">' + icono + '</span><h3 style="margin: 0; font-size: 1.1rem;">' + titulo + '</h3></div>';
+            html += '<button onclick="cerrarModalInfo()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center;">×</button>';
+            html += '</div>';
+            html += '<div class="modal-scroll" style="padding: 1.5rem; max-height: 60vh; overflow-y: auto;">';
+            html += contenidoHTML;
+            html += '</div>';
+            html += '<div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">';
+            html += '<button onclick="cerrarModalInfo()" style="background: linear-gradient(135deg, #3d4f31, #5a7247); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Cerrar</button>';
+            html += '</div></div></div>';
+
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function cerrarModalInfo() {
+            var modal = document.getElementById('modalInfoGeneral');
+            if (modal) modal.remove();
+        }
+
         // State
         let entries = JSON.parse(localStorage.getItem('aceitunaEntries')) || [];
         let selectedColor = '';
@@ -4231,7 +4518,7 @@
         function buscarPorCodigo() {
             const codigo = document.getElementById('searchCodigo').value.trim().toLowerCase();
             if (!codigo) {
-                alert('Ingrese un código para buscar');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese un código para buscar</p>', '⚠️');
                 return;
             }
 
@@ -4243,7 +4530,7 @@
                 }
             }
 
-            alert('No se encontró ningún elemento con el código: ' + codigo);
+            mostrarModalInfo('Sin Resultados', '<p style="text-align: center; color: #64748b; padding: 1rem;">No se encontró ningún elemento con el código: <strong>' + codigo + '</strong></p>', '🔍');
         }
 
         function openCuadranteModal(cuadranteId) {
@@ -4337,12 +4624,12 @@
 
         function guardarSalida() {
             if (!selectedSalidaTipo) {
-                alert('Seleccione un tipo de salida');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Seleccione un tipo de salida</p>', '⚠️');
                 return;
             }
 
             // Save logic here
-            alert('Salida registrada correctamente');
+            mostrarModalInfo('Éxito', '<p style="text-align: center; color: #16a34a;">Salida registrada correctamente</p>', '✅');
             closeSalidaModal();
         }
 
@@ -4375,8 +4662,414 @@
             document.getElementById('salidaSeleccion').style.display = 'block';
             document.getElementById('salidaVentasContent').style.display = 'none';
             document.getElementById('salidaReubicacionContent').style.display = 'none';
+            document.getElementById('salidaPrestamosContent').style.display = 'none';
             tipoVentaSeleccionado = '';
         }
+
+        // ========== PRÉSTAMOS FUNCTIONS ==========
+        let prestamosData = JSON.parse(localStorage.getItem('prestamosData')) || [];
+
+        function mostrarSalidaPrestamos() {
+            document.getElementById('salidaSeleccion').style.display = 'none';
+            document.getElementById('salidaVentasContent').style.display = 'none';
+            document.getElementById('salidaReubicacionContent').style.display = 'none';
+            document.getElementById('salidaPrestamosContent').style.display = 'block';
+            // Set fecha to today
+            document.getElementById('prestamoFecha').value = new Date().toISOString().split('T')[0];
+            cargarLotesParaPrestamo();
+            renderHistorialPrestamos();
+        }
+
+        function cargarLotesParaPrestamo() {
+            const select = document.getElementById('prestamoLote');
+            select.innerHTML = '<option value="">Seleccionar lote...</option>';
+
+            entries.forEach(entry => {
+                if (entry.codigoLote) {
+                    const totalKg = entry.calibres && entry.calibres.length > 0
+                        ? entry.calibres.reduce((sum, c) => sum + (parseFloat(c.subtotal) || 0), 0)
+                        : 0;
+                    select.innerHTML += '<option value="' + entry.id + '">' + entry.codigoLote + ' - ' + (entry.vendedor || 'Sin vendedor') + ' (' + totalKg.toFixed(1) + ' Kg)</option>';
+                }
+            });
+        }
+
+        let tipoPrestamo = ''; // 'lote' o 'calibres'
+        let calibresPrestamoSeleccionados = [];
+
+        function cargarCalibresPrestamo() {
+            const loteId = document.getElementById('prestamoLote').value;
+
+            // Resetear paneles
+            document.getElementById('panelPrestamoLoteCompleto').style.display = 'none';
+            document.getElementById('panelPrestamoCalibre').style.display = 'none';
+            document.getElementById('btnPrestamoLoteCompleto').style.background = '#f1f5f9';
+            document.getElementById('btnPrestamoLoteCompleto').style.borderColor = '#e2e8f0';
+            document.getElementById('btnPrestamoCalibre').style.background = '#f1f5f9';
+            document.getElementById('btnPrestamoCalibre').style.borderColor = '#e2e8f0';
+            tipoPrestamo = '';
+            calibresPrestamoSeleccionados = [];
+
+            if (!loteId) {
+                document.getElementById('resumenLotePrestamo').innerHTML = '<span style="color: #94a3b8;">Seleccione un lote primero</span>';
+                document.getElementById('listaCalibresPrestamo').innerHTML = '<span style="color: #94a3b8;">Seleccione un lote primero</span>';
+                return;
+            }
+
+            const entry = entries.find(e => e.id == loteId);
+            if (entry && entry.calibres && entry.calibres.length > 0) {
+                // Calcular totales
+                let totalKg = 0;
+                let calibresInfo = [];
+                entry.calibres.forEach(c => {
+                    totalKg += parseFloat(c.subtotal) || 0;
+                    calibresInfo.push(c.calibre + ': ' + (c.subtotal || 0) + ' Kg');
+                });
+
+                // Actualizar resumen del lote
+                document.getElementById('resumenLotePrestamo').innerHTML =
+                    '<div><strong>Lote:</strong> ' + entry.codigoLote + '</div>' +
+                    '<div><strong>Total disponible:</strong> ' + totalKg.toFixed(1) + ' Kg</div>' +
+                    '<div><strong>Calibres:</strong> ' + entry.calibres.length + ' (' + calibresInfo.join(', ') + ')</div>';
+
+                // Generar lista de calibres con checkboxes y campos editables
+                let html = '';
+                entry.calibres.forEach((c, index) => {
+                    html += '<div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; display: flex; align-items: center; gap: 1rem;">';
+                    html += '<input type="checkbox" id="chkCalibre_' + index + '" onchange="actualizarTotalCalibresPrestamo()" style="width: 20px; height: 20px; cursor: pointer;">';
+                    html += '<div style="flex: 1;">';
+                    html += '<div style="font-weight: 600; color: #1e293b;">' + c.calibre + '</div>';
+                    html += '<div style="font-size: 0.8rem; color: #64748b;">Disponible: ' + (c.subtotal || 0) + ' Kg</div>';
+                    html += '</div>';
+                    html += '<div style="display: flex; align-items: center; gap: 0.5rem;">';
+                    html += '<input type="number" id="bidonCalibre_' + index + '" placeholder="Bidones" style="width: 80px; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center;" oninput="actualizarTotalCalibresPrestamo()" disabled>';
+                    html += '<span style="color: #64748b;">×</span>';
+                    html += '<input type="number" id="kgBidonCalibre_' + index + '" value="60" placeholder="Kg/Bidón" step="0.1" style="width: 70px; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center;" oninput="actualizarTotalCalibresPrestamo()" disabled>';
+                    html += '<span style="color: #64748b; font-size: 0.85rem;">Kg</span>';
+                    html += '<input type="hidden" id="calibreNombre_' + index + '" value="' + c.calibre + '">';
+                    html += '</div></div>';
+                });
+                document.getElementById('listaCalibresPrestamo').innerHTML = html;
+
+                // Habilitar/deshabilitar campos según checkbox
+                document.querySelectorAll('[id^="chkCalibre_"]').forEach((chk, i) => {
+                    chk.addEventListener('change', function () {
+                        document.getElementById('bidonCalibre_' + i).disabled = !this.checked;
+                        document.getElementById('kgBidonCalibre_' + i).disabled = !this.checked;
+                        if (!this.checked) {
+                            document.getElementById('bidonCalibre_' + i).value = '';
+                        }
+                    });
+                });
+            } else {
+                document.getElementById('resumenLotePrestamo').innerHTML = '<span style="color: #dc2626;">Este lote no tiene calibres registrados</span>';
+                document.getElementById('listaCalibresPrestamo').innerHTML = '<span style="color: #dc2626;">Este lote no tiene calibres registrados</span>';
+            }
+        }
+
+        function seleccionarTipoPrestamo(tipo) {
+            tipoPrestamo = tipo;
+
+            // Visual update
+            document.getElementById('btnPrestamoLoteCompleto').style.background = tipo === 'lote' ? '#f59e0b' : '#f1f5f9';
+            document.getElementById('btnPrestamoLoteCompleto').style.borderColor = tipo === 'lote' ? '#f59e0b' : '#e2e8f0';
+            document.getElementById('btnPrestamoLoteCompleto').style.color = tipo === 'lote' ? 'white' : '#1e293b';
+            document.getElementById('btnPrestamoCalibre').style.background = tipo === 'calibres' ? '#7c3aed' : '#f1f5f9';
+            document.getElementById('btnPrestamoCalibre').style.borderColor = tipo === 'calibres' ? '#7c3aed' : '#e2e8f0';
+            document.getElementById('btnPrestamoCalibre').style.color = tipo === 'calibres' ? 'white' : '#1e293b';
+
+            // Show/hide panels
+            document.getElementById('panelPrestamoLoteCompleto').style.display = tipo === 'lote' ? 'block' : 'none';
+            document.getElementById('panelPrestamoCalibre').style.display = tipo === 'calibres' ? 'block' : 'none';
+        }
+
+        function calcularTotalPrestamoLote() {
+            const bidones = parseFloat(document.getElementById('prestamoBidonesLote').value) || 0;
+            const kgBidon = parseFloat(document.getElementById('prestamoKgBidonLote').value) || 0;
+            const total = bidones * kgBidon;
+            document.getElementById('prestamoKgTotalLote').value = total.toFixed(1) + ' Kg';
+        }
+
+        function actualizarTotalCalibresPrestamo() {
+            let totalKg = 0;
+            calibresPrestamoSeleccionados = [];
+
+            document.querySelectorAll('[id^="chkCalibre_"]').forEach((chk, i) => {
+                if (chk.checked) {
+                    const bidones = parseFloat(document.getElementById('bidonCalibre_' + i).value) || 0;
+                    const kgBidon = parseFloat(document.getElementById('kgBidonCalibre_' + i).value) || 60;
+                    const nombre = document.getElementById('calibreNombre_' + i).value;
+                    const subtotal = bidones * kgBidon;
+                    totalKg += subtotal;
+
+                    if (bidones > 0) {
+                        calibresPrestamoSeleccionados.push({
+                            calibre: nombre,
+                            bidones: bidones,
+                            kgBidon: kgBidon,
+                            kgTotal: subtotal
+                        });
+                    }
+                }
+            });
+
+            document.getElementById('prestamoTotalCalibreSeleccionado').textContent = totalKg.toFixed(1) + ' Kg';
+        }
+
+
+        function guardarPrestamo() {
+            const responsable = document.getElementById('prestamoResponsable').value.trim();
+            const fecha = document.getElementById('prestamoFecha').value;
+            const loteId = document.getElementById('prestamoLote').value;
+            const destinatario = document.getElementById('prestamoDestinatario').value.trim();
+            const bodega = document.getElementById('prestamoBodega').value.trim();
+
+            // Validaciones básicas
+            if (!responsable) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese el responsable</p>', '⚠️'); return; }
+            if (!fecha) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese la fecha</p>', '⚠️'); return; }
+            if (!loteId) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Seleccione un lote</p>', '⚠️'); return; }
+            if (!destinatario) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese el nombre del destinatario</p>', '⚠️'); return; }
+            if (!bodega) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese el nombre de la bodega</p>', '⚠️'); return; }
+            if (!tipoPrestamo) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Seleccione el tipo de préstamo (Lote Completo o Calibres Específicos)</p>', '⚠️'); return; }
+
+            const entry = entries.find(e => e.id == loteId);
+            const codigoLote = entry ? entry.codigoLote : loteId;
+
+            let bidones = 0;
+            let kgBidon = 60;
+            let kgTotal = 0;
+            let calibresDetalle = [];
+            let calibreTexto = '';
+
+            if (tipoPrestamo === 'lote') {
+                bidones = parseFloat(document.getElementById('prestamoBidonesLote').value) || 0;
+                kgBidon = parseFloat(document.getElementById('prestamoKgBidonLote').value) || 60;
+                kgTotal = bidones * kgBidon;
+                calibreTexto = 'LOTE COMPLETO';
+
+                if (bidones <= 0) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese el número de bidones</p>', '⚠️'); return; }
+            } else if (tipoPrestamo === 'calibres') {
+                if (calibresPrestamoSeleccionados.length === 0) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Seleccione al menos un calibre y especifique los bidones</p>', '⚠️'); return; }
+
+                calibresDetalle = calibresPrestamoSeleccionados;
+                kgTotal = calibresDetalle.reduce((sum, c) => sum + c.kgTotal, 0);
+                bidones = calibresDetalle.reduce((sum, c) => sum + c.bidones, 0);
+                calibreTexto = calibresDetalle.map(c => c.calibre + ' (' + c.bidones + ' bid)').join(', ');
+            }
+
+            const prestamo = {
+                id: Date.now(),
+                tipo: 'prestamo',
+                modoPrestamo: tipoPrestamo, // 'lote' o 'calibres'
+                responsable: responsable,
+                fecha: fecha,
+                loteId: loteId,
+                codigoLote: codigoLote,
+                destinatario: destinatario,
+                bodega: bodega,
+                direccion: document.getElementById('prestamoDireccion').value.trim(),
+                telefono: document.getElementById('prestamoTelefono').value.trim(),
+                calibres: calibresDetalle,
+                calibreTexto: calibreTexto,
+                bidones: bidones,
+                kgBidon: kgBidon,
+                kgTotal: kgTotal,
+                fechaDevolucion: document.getElementById('prestamoFechaDevolucion').value,
+                estado: document.getElementById('prestamoEstado').value,
+                observaciones: document.getElementById('prestamoObservaciones').value.trim(),
+                fechaRegistro: new Date().toISOString()
+            };
+
+            prestamosData.push(prestamo);
+            localStorage.setItem('prestamosData', JSON.stringify(prestamosData));
+
+            var msgPrestamo = '<div style="text-align: center;"><div style="font-size: 2.5rem; margin-bottom: 0.5rem;">✅</div>';
+            msgPrestamo += '<div style="font-weight: 700; color: #16a34a; margin-bottom: 1rem;">Préstamo Registrado</div></div>';
+            msgPrestamo += '<div style="background: #fef3c7; border-radius: 8px; padding: 1rem;">';
+            msgPrestamo += '<div><span style="color: #92400e; font-size: 0.75rem;">DESTINATARIO</span><div style="font-weight: 600;">' + destinatario + '</div></div>';
+            msgPrestamo += '<div style="margin-top: 0.5rem;"><span style="color: #92400e; font-size: 0.75rem;">BODEGA</span><div style="font-weight: 600;">' + bodega + '</div></div>';
+            msgPrestamo += '<div style="margin-top: 0.5rem;"><span style="color: #92400e; font-size: 0.75rem;">LOTE</span><div style="font-weight: 600;">' + codigoLote + '</div></div>';
+            msgPrestamo += '<div style="margin-top: 0.5rem;"><span style="color: #92400e; font-size: 0.75rem;">DETALLE</span><div style="font-weight: 600;">' + calibreTexto + '</div></div>';
+            msgPrestamo += '<div style="margin-top: 0.5rem;"><span style="color: #92400e; font-size: 0.75rem;">TOTAL</span><div style="font-weight: 600; color: #f59e0b;">' + kgTotal.toFixed(1) + ' Kg (' + bidones + ' bidones)</div></div>';
+            msgPrestamo += '</div>';
+            mostrarModalInfo('Préstamo Registrado', msgPrestamo, '🤝');
+
+            limpiarFormPrestamo();
+            renderHistorialPrestamos();
+        }
+
+        function limpiarFormPrestamo() {
+            document.getElementById('prestamoResponsable').value = '';
+            document.getElementById('prestamoFecha').value = new Date().toISOString().split('T')[0];
+            document.getElementById('prestamoLote').value = '';
+            document.getElementById('prestamoDestinatario').value = '';
+            document.getElementById('prestamoBodega').value = '';
+            document.getElementById('prestamoDireccion').value = '';
+            document.getElementById('prestamoTelefono').value = '';
+            document.getElementById('prestamoFechaDevolucion').value = '';
+            document.getElementById('prestamoEstado').value = 'pendiente';
+            document.getElementById('prestamoObservaciones').value = '';
+
+            // Resetear paneles
+            tipoPrestamo = '';
+            calibresPrestamoSeleccionados = [];
+            document.getElementById('panelPrestamoLoteCompleto').style.display = 'none';
+            document.getElementById('panelPrestamoCalibre').style.display = 'none';
+            document.getElementById('btnPrestamoLoteCompleto').style.background = '#f1f5f9';
+            document.getElementById('btnPrestamoLoteCompleto').style.borderColor = '#e2e8f0';
+            document.getElementById('btnPrestamoLoteCompleto').style.color = '#1e293b';
+            document.getElementById('btnPrestamoCalibre').style.background = '#f1f5f9';
+            document.getElementById('btnPrestamoCalibre').style.borderColor = '#e2e8f0';
+            document.getElementById('btnPrestamoCalibre').style.color = '#1e293b';
+            document.getElementById('prestamoBidonesLote').value = '';
+            document.getElementById('prestamoKgBidonLote').value = '60';
+            document.getElementById('prestamoKgTotalLote').value = '0 Kg';
+            document.getElementById('listaCalibresPrestamo').innerHTML = '';
+            document.getElementById('prestamoTotalCalibreSeleccionado').textContent = '0 Kg';
+            document.getElementById('resumenLotePrestamo').innerHTML = '';
+        }
+
+        function renderHistorialPrestamos() {
+            const container = document.getElementById('historialPrestamosBody');
+            const noPrestamosMsg = document.getElementById('noPrestamosMessage');
+            const prestamosCount = document.getElementById('prestamosCount');
+            const table = document.getElementById('historialPrestamosTable');
+
+            prestamosCount.textContent = prestamosData.length;
+
+            if (prestamosData.length === 0) {
+                table.style.display = 'none';
+                noPrestamosMsg.style.display = 'block';
+                return;
+            }
+
+            table.style.display = 'table';
+            noPrestamosMsg.style.display = 'none';
+
+            // Ordenar por fecha más reciente
+            const prestamosOrdenados = [...prestamosData].sort((a, b) => new Date(b.fechaRegistro) - new Date(a.fechaRegistro));
+
+            let html = '';
+            prestamosOrdenados.forEach(p => {
+                const estadoColor = p.estado === 'devuelto' ? '#16a34a' : (p.estado === 'parcial' ? '#f59e0b' : '#ef4444');
+                const estadoTexto = p.estado === 'devuelto' ? 'Devuelto' : (p.estado === 'parcial' ? 'Parcial' : 'Pendiente');
+
+                html += '<tr style="border-bottom: 1px solid #e2e8f0;">';
+                html += '<td style="padding: 0.8rem;">' + formatDate(p.fecha) + '</td>';
+                html += '<td style="padding: 0.8rem; font-weight: 600;">' + (p.codigoLote || '-') + '</td>';
+                html += '<td style="padding: 0.8rem;">' + (p.destinatario || '-') + '</td>';
+                html += '<td style="padding: 0.8rem;">' + (p.bodega || '-') + '</td>';
+                html += '<td style="padding: 0.8rem; text-align: right; font-weight: 600; color: #f59e0b;">' + (p.kgTotal || 0).toFixed(1) + ' Kg</td>';
+                html += '<td style="padding: 0.8rem; text-align: center;"><span style="background: ' + estadoColor + '; color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem;">' + estadoTexto + '</span></td>';
+                html += '<td style="padding: 0.8rem; text-align: center;">';
+                html += '<button onclick="verDetallePrestamo(' + p.id + ')" style="background: #3b82f6; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 5px; font-size: 0.75rem; cursor: pointer; margin-right: 0.3rem;">👁️</button>';
+                html += '<button onclick="eliminarPrestamo(' + p.id + ')" style="background: #ef4444; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 5px; font-size: 0.75rem; cursor: pointer;">🗑️</button>';
+                html += '</td>';
+                html += '</tr>';
+            });
+
+            container.innerHTML = html;
+        }
+
+        function verDetallePrestamo(id) {
+            const prestamo = prestamosData.find(p => p.id === id);
+            if (!prestamo) {
+                mostrarModalInfo('Error', '<p style="text-align: center; color: #dc2626;">Préstamo no encontrado</p>', '❌');
+                return;
+            }
+
+            const estadoColor = prestamo.estado === 'devuelto' ? '#16a34a' : (prestamo.estado === 'parcial' ? '#f59e0b' : '#ef4444');
+            const estadoTexto = prestamo.estado === 'devuelto' ? 'Devuelto' : (prestamo.estado === 'parcial' ? 'Devolución Parcial' : 'Pendiente de Devolución');
+            const tipoPrestamoTexto = prestamo.modoPrestamo === 'lote' ? '📦 Lote Completo' : '⚖️ Calibres Específicos';
+
+            let contenido = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">';
+            contenido += '<div><div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Lote</div><div style="font-weight: 600; color: #1e293b;">' + (prestamo.codigoLote || '-') + '</div></div>';
+            contenido += '<div><div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Fecha</div><div style="color: #1e293b;">' + formatDate(prestamo.fecha) + '</div></div>';
+            contenido += '<div><div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Responsable</div><div style="color: #1e293b;">' + (prestamo.responsable || '-') + '</div></div>';
+            contenido += '<div><div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Tipo</div><div style="color: #1e293b;">' + tipoPrestamoTexto + '</div></div>';
+            contenido += '</div>';
+
+            // Mostrar calibres si es préstamo por calibres
+            if (prestamo.calibres && prestamo.calibres.length > 0) {
+                contenido += '<div style="background: #f8fafc; border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">';
+                contenido += '<div style="font-size: 0.8rem; color: #64748b; font-weight: 600; margin-bottom: 0.5rem;">📦 CALIBRES PRESTADOS</div>';
+                prestamo.calibres.forEach(c => {
+                    contenido += '<div style="display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid #e2e8f0;">';
+                    contenido += '<span style="font-weight: 500;">' + c.calibre + '</span>';
+                    contenido += '<span style="color: #f59e0b; font-weight: 600;">' + c.bidones + ' bid × ' + c.kgBidon + ' Kg = ' + c.kgTotal.toFixed(1) + ' Kg</span>';
+                    contenido += '</div>';
+                });
+                contenido += '</div>';
+            } else if (prestamo.calibreTexto) {
+                contenido += '<div style="background: #f8fafc; border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">';
+                contenido += '<div style="font-size: 0.8rem; color: #64748b; font-weight: 600; margin-bottom: 0.5rem;">📦 DETALLE</div>';
+                contenido += '<div style="font-weight: 500;">' + prestamo.calibreTexto + '</div>';
+                contenido += '</div>';
+            }
+
+            contenido += '<div style="background: #fef3c7; border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">';
+            contenido += '<div style="font-size: 0.8rem; color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">🏪 DESTINATARIO</div>';
+            contenido += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">';
+            contenido += '<div><strong>Nombre:</strong> ' + (prestamo.destinatario || '-') + '</div>';
+            contenido += '<div><strong>Bodega:</strong> ' + (prestamo.bodega || '-') + '</div>';
+            if (prestamo.direccion) contenido += '<div style="grid-column: span 2;"><strong>Dirección:</strong> ' + prestamo.direccion + '</div>';
+            if (prestamo.telefono) contenido += '<div><strong>Teléfono:</strong> ' + prestamo.telefono + '</div>';
+            contenido += '</div></div>';
+
+            contenido += '<div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 1rem; border-radius: 10px; text-align: center; margin-bottom: 1rem;">';
+            contenido += '<div style="font-size: 0.8rem; opacity: 0.9;">TOTAL PRESTADO</div>';
+            contenido += '<div style="font-size: 1.3rem; font-weight: 700;">' + (prestamo.bidones || 0) + ' bidones = ' + (prestamo.kgTotal || 0).toFixed(1) + ' Kg</div>';
+            contenido += '</div>';
+
+            contenido += '<div style="text-align: center;"><span style="background: ' + estadoColor + '; color: white; padding: 0.4rem 1rem; border-radius: 20px; font-weight: 600;">' + estadoTexto + '</span></div>';
+
+            if (prestamo.observaciones) {
+                contenido += '<div style="margin-top: 1rem; padding: 0.8rem; background: #f8fafc; border-radius: 8px;"><strong>Observaciones:</strong> ' + prestamo.observaciones + '</div>';
+            }
+
+            mostrarModalInfo('Detalle de Préstamo', contenido, '🤝');
+        }
+
+        var prestamoIdParaEliminar = null;
+
+        function eliminarPrestamo(id) {
+            prestamoIdParaEliminar = id;
+            var html = '<div id="modalConfirmarEliminarPrestamo" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; padding: 1rem;">';
+            html += '<div style="background: white; border-radius: 16px; width: 100%; max-width: 400px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">';
+            html += '<div style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">';
+            html += '<div style="display: flex; align-items: center; gap: 0.8rem;"><span style="font-size: 1.5rem;">🗑️</span><h3 style="margin: 0; font-size: 1.1rem;">Eliminar Préstamo</h3></div>';
+            html += '<button onclick="cerrarModalEliminarPrestamo()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; font-size: 1.2rem; cursor: pointer;">×</button>';
+            html += '</div>';
+            html += '<div style="padding: 1.5rem; text-align: center;">';
+            html += '<p style="color: #1e293b; margin-bottom: 0.5rem;">¿Estás seguro de eliminar este préstamo?</p>';
+            html += '<p style="color: #dc2626; font-size: 0.85rem;">Esta acción no se puede deshacer.</p>';
+            html += '</div>';
+            html += '<div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.8rem;">';
+            html += '<button onclick="cerrarModalEliminarPrestamo()" style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.7rem 1.2rem; border-radius: 8px; cursor: pointer; color: #64748b;">Cancelar</button>';
+            html += '<button onclick="confirmarEliminarPrestamo()" style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Eliminar</button>';
+            html += '</div></div></div>';
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function cerrarModalEliminarPrestamo() {
+            var modal = document.getElementById('modalConfirmarEliminarPrestamo');
+            if (modal) modal.remove();
+            prestamoIdParaEliminar = null;
+        }
+
+        function confirmarEliminarPrestamo() {
+            if (prestamoIdParaEliminar !== null) {
+                var index = prestamosData.findIndex(function (p) { return p.id === prestamoIdParaEliminar; });
+                if (index !== -1) {
+                    prestamosData.splice(index, 1);
+                    localStorage.setItem('prestamosData', JSON.stringify(prestamosData));
+                    renderHistorialPrestamos();
+                    cerrarModalEliminarPrestamo();
+                    mostrarModalInfo('Éxito', '<p style="text-align: center; color: #16a34a;">Préstamo eliminado correctamente</p>', '✅');
+                }
+            }
+        }
+
 
         function seleccionarTipoVenta(tipo) {
             tipoVentaSeleccionado = tipo;
@@ -4601,30 +5294,30 @@
 
             // Validations
             if (!tipoVentaSeleccionado) {
-                alert('Seleccione el tipo de venta (Exportación o Mercado Nacional)');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Seleccione el tipo de venta (Exportación o Mercado Nacional)</p>', '⚠️');
                 return;
             }
-            if (!responsable) { alert('Ingrese el responsable'); return; }
-            if (!fecha) { alert('Ingrese la fecha'); return; }
-            if (!loteId) { alert('Seleccione el lote'); return; }
+            if (!responsable) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese el responsable</p>', '⚠️'); return; }
+            if (!fecha) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese la fecha</p>', '⚠️'); return; }
+            if (!loteId) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Seleccione el lote</p>', '⚠️'); return; }
 
             // Obtener información del lote
             const entry = entries.find(e => e.id == loteId);
-            if (!entry) { alert('No se encontró la información del lote'); return; }
-            if (!entry.calibres || entry.calibres.length === 0) { alert('El lote no tiene calibres registrados'); return; }
+            if (!entry) { mostrarModalInfo('Error', '<p style="text-align: center; color: #dc2626;">No se encontró la información del lote</p>', '❌'); return; }
+            if (!entry.calibres || entry.calibres.length === 0) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">El lote no tiene calibres registrados</p>', '⚠️'); return; }
 
             let destino = {};
             if (tipoVentaSeleccionado === 'exportacion') {
                 const pais = document.getElementById('ventaPais').value;
                 const cliente = document.getElementById('ventaClienteExport').value.trim();
-                if (!pais) { alert('Seleccione el país de destino'); return; }
-                if (!cliente) { alert('Ingrese el nombre del cliente'); return; }
+                if (!pais) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Seleccione el país de destino</p>', '⚠️'); return; }
+                if (!cliente) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese el nombre del cliente</p>', '⚠️'); return; }
                 destino = { pais: pais, cliente: cliente };
             } else {
                 const ciudad = document.getElementById('ventaCiudad').value.trim();
                 const cliente = document.getElementById('ventaClienteNacional').value.trim();
-                if (!ciudad) { alert('Ingrese la ciudad de destino'); return; }
-                if (!cliente) { alert('Ingrese el nombre del cliente'); return; }
+                if (!ciudad) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese la ciudad de destino</p>', '⚠️'); return; }
+                if (!cliente) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese el nombre del cliente</p>', '⚠️'); return; }
                 destino = {
                     ciudad: ciudad,
                     distrito: document.getElementById('ventaDistrito').value.trim(),
@@ -4660,14 +5353,21 @@
             salidasData.push(venta);
             localStorage.setItem('salidasData', JSON.stringify(salidasData));
 
-            alert('✅ Venta registrada exitosamente!\n\n' +
-                'Tipo: ' + (tipoVentaSeleccionado === 'exportacion' ? 'Exportación' : 'Mercado Nacional') + '\n' +
-                'Lote: ' + entry.codigoLote + '\n' +
-                'Calibres: ' + entry.calibres.length + '\n' +
-                'Total Bidones: ' + totalBidones + '\n' +
-                'Total Kg: ' + totalKg.toFixed(1) + ' Kg\n' +
-                'Destino: ' + (tipoVentaSeleccionado === 'exportacion' ? destino.pais : destino.ciudad) + '\n' +
-                'Cliente: ' + destino.cliente);
+            var contenidoExito = '<div style="text-align: center; margin-bottom: 1rem;">';
+            contenidoExito += '<div style="font-size: 3rem; margin-bottom: 0.5rem;">✅</div>';
+            contenidoExito += '<div style="font-size: 1.2rem; font-weight: 700; color: #16a34a;">Venta Registrada Exitosamente</div>';
+            contenidoExito += '</div>';
+            contenidoExito += '<div style="background: #f8fafc; border-radius: 10px; padding: 1rem;">';
+            contenidoExito += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">';
+            contenidoExito += '<div><span style="color: #64748b; font-size: 0.75rem;">TIPO</span><div style="font-weight: 600;">' + (tipoVentaSeleccionado === 'exportacion' ? '🌍 Exportación' : '🏠 Mercado Nacional') + '</div></div>';
+            contenidoExito += '<div><span style="color: #64748b; font-size: 0.75rem;">LOTE</span><div style="font-weight: 600;">' + entry.codigoLote + '</div></div>';
+            contenidoExito += '<div><span style="color: #64748b; font-size: 0.75rem;">CALIBRES</span><div style="font-weight: 600;">' + entry.calibres.length + '</div></div>';
+            contenidoExito += '<div><span style="color: #64748b; font-size: 0.75rem;">TOTAL BIDONES</span><div style="font-weight: 600;">' + totalBidones + '</div></div>';
+            contenidoExito += '<div><span style="color: #64748b; font-size: 0.75rem;">TOTAL KG</span><div style="font-weight: 600; color: #16a34a;">' + totalKg.toFixed(1) + ' Kg</div></div>';
+            contenidoExito += '<div><span style="color: #64748b; font-size: 0.75rem;">DESTINO</span><div style="font-weight: 600;">' + (tipoVentaSeleccionado === 'exportacion' ? destino.pais : destino.ciudad) + '</div></div>';
+            contenidoExito += '<div style="grid-column: span 2;"><span style="color: #64748b; font-size: 0.75rem;">CLIENTE</span><div style="font-weight: 600;">' + destino.cliente + '</div></div>';
+            contenidoExito += '</div></div>';
+            mostrarModalInfo('Venta Registrada', contenidoExito, '📋');
 
             limpiarFormVenta();
             tipoVentaSeleccionado = '';
@@ -4693,13 +5393,13 @@
             const kgBidon = parseFloat(document.getElementById('reubicacionKgBidon').value) || 0;
 
             // Validations
-            if (!responsable) { alert('Ingrese el responsable'); return; }
-            if (!fecha) { alert('Ingrese la fecha'); return; }
-            if (!loteId) { alert('Seleccione un lote'); return; }
-            if (!destino) { alert('Ingrese el destino'); return; }
-            if (!calibre) { alert('Seleccione el calibre'); return; }
-            if (bidones <= 0) { alert('Ingrese el número de bidones'); return; }
-            if (kgBidon <= 0) { alert('Ingrese los kg por bidón'); return; }
+            if (!responsable) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese el responsable</p>', '⚠️'); return; }
+            if (!fecha) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese la fecha</p>', '⚠️'); return; }
+            if (!loteId) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Seleccione un lote</p>', '⚠️'); return; }
+            if (!destino) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese el destino</p>', '⚠️'); return; }
+            if (!calibre) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Seleccione el calibre</p>', '⚠️'); return; }
+            if (bidones <= 0) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese el número de bidones</p>', '⚠️'); return; }
+            if (kgBidon <= 0) { mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese los kg por bidón</p>', '⚠️'); return; }
 
             // Obtener info del lote para el registro
             const entry = entries.find(e => e.id == loteId);
@@ -4723,12 +5423,21 @@
             salidasData.push(reubicacion);
             localStorage.setItem('salidasData', JSON.stringify(salidasData));
 
-            alert('Reubicación registrada exitosamente!\n\n' +
-                'Destino: ' + destino + '\n' +
-                'Calibre: ' + calibre + '\n' +
-                'Total: ' + (bidones * kgBidon).toFixed(1) + ' Kg');
+            var msgReub = '<div style="text-align: center;"><div style="font-size: 2.5rem; margin-bottom: 0.5rem;">✅</div>';
+            msgReub += '<div style="font-weight: 700; color: #16a34a; margin-bottom: 1rem;">Reubicación Registrada</div></div>';
+            msgReub += '<div style="background: #f8fafc; border-radius: 8px; padding: 1rem;">';
+            msgReub += '<div><span style="color: #64748b; font-size: 0.75rem;">DESTINO</span><div style="font-weight: 600;">' + destino + '</div></div>';
+            msgReub += '<div style="margin-top: 0.5rem;"><span style="color: #64748b; font-size: 0.75rem;">CALIBRE</span><div style="font-weight: 600;">' + calibre + '</div></div>';
+            msgReub += '<div style="margin-top: 0.5rem;"><span style="color: #64748b; font-size: 0.75rem;">TOTAL</span><div style="font-weight: 600; color: #16a34a;">' + (bidones * kgBidon).toFixed(1) + ' Kg</div></div>';
+            msgReub += '</div>';
+            mostrarModalInfo('Reubicación', msgReub, '📦');
 
             limpiarFormReubicacion();
+
+            // Volver al almacén si vinimos de ahí
+            if (window.reubicacionOrigenAlmacen) {
+                volverDesdeReubicacion();
+            }
         }
 
         // ========== HISTORIAL DE VENTAS FUNCTIONS ==========
@@ -4806,36 +5515,53 @@
         function verDetalleVenta(id) {
             const venta = salidasData.find(s => s.id === id);
             if (!venta) {
-                alert('Venta no encontrada');
+                mostrarModalInfo('Error', '<p style="color: #dc2626;">Venta no encontrada</p>', '❌');
                 return;
             }
 
-            let calibresDetalle = '';
+            let calibresHTML = '';
             if (venta.calibres && venta.calibres.length > 0) {
-                calibresDetalle = venta.calibres.map(c =>
-                    `  • ${c.calibre}: ${c.bidones || 0} bidones × ${c.kilosPorBidon || 0} Kg + ${c.sobras || 0} Kg sobras = ${c.subtotal || 0} Kg`
-                ).join('\n');
+                calibresHTML = '<div style="margin-top: 1rem;">';
+                venta.calibres.forEach(c => {
+                    calibresHTML += '<div style="background: #f8fafc; padding: 0.8rem; border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid #3d4f31;">';
+                    calibresHTML += '<div style="font-weight: 600; color: #1e293b;">' + (c.calibre || '-') + '</div>';
+                    calibresHTML += '<div style="font-size: 0.85rem; color: #64748b;">' + (c.bidones || 0) + ' bidones × ' + (c.kilosPorBidon || 0) + ' Kg + ' + (c.sobras || 0) + ' Kg sobras = <strong style="color: #16a34a;">' + (c.subtotal || 0) + ' Kg</strong></div>';
+                    calibresHTML += '</div>';
+                });
+                calibresHTML += '</div>';
             }
 
             const destinoInfo = venta.tipoVenta === 'exportacion'
-                ? `País: ${venta.destino?.pais || '-'}`
-                : `Ciudad: ${venta.destino?.ciudad || '-'}, Distrito: ${venta.destino?.distrito || '-'}`;
+                ? 'País: ' + (venta.destino?.pais || '-')
+                : 'Ciudad: ' + (venta.destino?.ciudad || '-') + ', Distrito: ' + (venta.destino?.distrito || '-');
 
-            alert(`📋 DETALLE DE VENTA\n\n` +
-                `Lote: ${venta.codigoLote}\n` +
-                `Fecha: ${formatDate(venta.fecha)}\n` +
-                `Tipo: ${venta.tipoVenta === 'exportacion' ? 'Exportación' : 'Mercado Nacional'}\n` +
-                `Responsable: ${venta.responsable}\n` +
-                `Cliente: ${venta.destino?.cliente || '-'}\n` +
-                `${destinoInfo}\n\n` +
-                `CALIBRES:\n${calibresDetalle}\n\n` +
-                `TOTAL: ${venta.totalBidones || 0} bidones = ${(venta.kgTotal || 0).toFixed(1)} Kg`);
+            let contenido = '';
+            contenido += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">';
+            contenido += '<div><div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Lote</div><div style="font-weight: 600; color: #1e293b;">' + (venta.codigoLote || '-') + '</div></div>';
+            contenido += '<div><div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Fecha</div><div style="color: #1e293b;">' + formatDate(venta.fecha) + '</div></div>';
+            contenido += '<div><div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Tipo</div><div style="color: #1e293b;">' + (venta.tipoVenta === 'exportacion' ? '🌍 Exportación' : '🏠 Mercado Nacional') + '</div></div>';
+            contenido += '<div><div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Responsable</div><div style="color: #1e293b;">' + (venta.responsable || '-') + '</div></div>';
+            contenido += '<div><div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Cliente</div><div style="color: #1e293b;">' + (venta.destino?.cliente || '-') + '</div></div>';
+            contenido += '<div><div style="font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Destino</div><div style="color: #1e293b;">' + destinoInfo + '</div></div>';
+            contenido += '</div>';
+
+            contenido += '<div style="border-top: 1px solid #e2e8f0; padding-top: 1rem;">';
+            contenido += '<div style="font-size: 0.8rem; color: #64748b; font-weight: 600; margin-bottom: 0.5rem;">CALIBRES:</div>';
+            contenido += calibresHTML;
+            contenido += '</div>';
+
+            contenido += '<div style="background: linear-gradient(135deg, #3d4f31, #5a7247); color: white; padding: 1rem; border-radius: 10px; margin-top: 1rem; text-align: center;">';
+            contenido += '<div style="font-size: 0.8rem; opacity: 0.9;">TOTAL</div>';
+            contenido += '<div style="font-size: 1.3rem; font-weight: 700;">' + (venta.totalBidones || 0) + ' bidones = ' + (venta.kgTotal || 0).toFixed(1) + ' Kg</div>';
+            contenido += '</div>';
+
+            mostrarModalInfo('Detalle de Venta', contenido, '📋');
         }
 
         function editarVenta(id) {
             const venta = salidasData.find(s => s.id === id);
             if (!venta) {
-                alert('Venta no encontrada');
+                mostrarModalInfo('Error', '<p style="text-align: center; color: #dc2626;">Venta no encontrada</p>', '❌');
                 return;
             }
 
@@ -4912,7 +5638,7 @@
         function guardarEdicionVenta(id) {
             const index = salidasData.findIndex(s => s.id === id);
             if (index === -1) {
-                alert('Venta no encontrada');
+                mostrarModalInfo('Error', '<p style="text-align: center; color: #dc2626;">Venta no encontrada</p>', '❌');
                 return;
             }
 
@@ -4946,18 +5672,46 @@
             cerrarEditarVenta();
             renderHistorialVentas();
 
-            alert('✅ Venta actualizada correctamente');
+            mostrarModalInfo('Éxito', '<p style="text-align: center; color: #16a34a;">✅ Venta actualizada correctamente</p>', '✅');
         }
 
-        function eliminarVenta(id) {
-            if (!confirm('¿Estás seguro de eliminar esta venta?')) return;
+        var ventaIdParaEliminar = null;
 
-            const index = salidasData.findIndex(s => s.id === id);
-            if (index !== -1) {
-                salidasData.splice(index, 1);
-                localStorage.setItem('salidasData', JSON.stringify(salidasData));
-                renderHistorialVentas();
-                alert('Venta eliminada correctamente');
+        function eliminarVenta(id) {
+            ventaIdParaEliminar = id;
+            var html = '<div id="modalConfirmarEliminarVenta" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; padding: 1rem;">';
+            html += '<div style="background: white; border-radius: 16px; width: 100%; max-width: 400px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">';
+            html += '<div style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">';
+            html += '<div style="display: flex; align-items: center; gap: 0.8rem;"><span style="font-size: 1.5rem;">🗑️</span><h3 style="margin: 0; font-size: 1.1rem;">Eliminar Venta</h3></div>';
+            html += '<button onclick="cerrarModalEliminarVenta()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; font-size: 1.2rem; cursor: pointer;">×</button>';
+            html += '</div>';
+            html += '<div style="padding: 1.5rem; text-align: center;">';
+            html += '<p style="color: #1e293b; margin-bottom: 0.5rem;">¿Estás seguro de eliminar esta venta?</p>';
+            html += '<p style="color: #dc2626; font-size: 0.85rem;">Esta acción no se puede deshacer.</p>';
+            html += '</div>';
+            html += '<div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.8rem;">';
+            html += '<button onclick="cerrarModalEliminarVenta()" style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.7rem 1.2rem; border-radius: 8px; cursor: pointer; color: #64748b;">Cancelar</button>';
+            html += '<button onclick="confirmarEliminarVenta()" style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Eliminar</button>';
+            html += '</div></div></div>';
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function cerrarModalEliminarVenta() {
+            var modal = document.getElementById('modalConfirmarEliminarVenta');
+            if (modal) modal.remove();
+            ventaIdParaEliminar = null;
+        }
+
+        function confirmarEliminarVenta() {
+            if (ventaIdParaEliminar !== null) {
+                var index = salidasData.findIndex(function (s) { return s.id === ventaIdParaEliminar; });
+                if (index !== -1) {
+                    salidasData.splice(index, 1);
+                    localStorage.setItem('salidasData', JSON.stringify(salidasData));
+                    renderHistorialVentas();
+                    cerrarModalEliminarVenta();
+                    mostrarModalInfo('Éxito', '<p style="text-align: center; color: #16a34a;">Venta eliminada correctamente</p>', '✅');
+                }
             }
         }
 
@@ -5204,7 +5958,7 @@
 
         // Exportar a PDF (funcionalidad básica)
         function exportarRecordPDF() {
-            alert('📄 Función de exportar a PDF - En desarrollo.\n\nPor ahora puedes usar Ctrl+P para imprimir la página.');
+            mostrarModalInfo('Exportar PDF', '<p style="text-align: center; color: #64748b;">📄 Función de exportar a PDF - En desarrollo.</p><p style="text-align: center; color: #94a3b8; font-size: 0.9rem; margin-top: 0.5rem;">Por ahora puedes usar Ctrl+P para imprimir la página.</p>', '📄');
         }
 
         // Exportar a Excel
@@ -5234,11 +5988,42 @@
             link.download = `record_historico_${ano}.csv`;
             link.click();
 
-            alert('✅ Archivo exportado: record_historico_' + ano + '.csv');
+            mostrarModalInfo('Éxito', '<p style="text-align: center; color: #16a34a;">✅ Archivo exportado: record_historico_' + ano + '.csv</p>', '📄');
         }
 
         function openFerreteriaModal() {
-            alert('Módulo de Ferretería - En desarrollo');
+            mostrarModalInfo('Ferretería', '<p style="text-align: center; color: #64748b;">🔧 Módulo de Ferretería - En desarrollo</p>', '🔧');
+        }
+
+        // Abrir sección de Reubicación desde Almacén de Aceitunas
+        function abrirReubicacionDesdeAlmacen() {
+            // Ocultar el contenido de almacén de aceitunas
+            document.getElementById('almacenAceitunasContent').style.display = 'none';
+
+            // Mostrar la sección de reubicación
+            document.getElementById('salidaReubicacionContent').style.display = 'block';
+
+            // Indicar que venimos del almacén
+            window.reubicacionOrigenAlmacen = true;
+
+            // Configurar fecha de hoy
+            document.getElementById('reubicacionFecha').value = new Date().toISOString().split('T')[0];
+
+            // Cargar lotes disponibles
+            cargarLotesParaReubicacion();
+        }
+
+        // Función para volver al almacén desde reubicación
+        function volverDesdeReubicacion() {
+            if (window.reubicacionOrigenAlmacen) {
+                // Volver al almacén de aceitunas
+                document.getElementById('salidaReubicacionContent').style.display = 'none';
+                document.getElementById('almacenAceitunasContent').style.display = 'block';
+                window.reubicacionOrigenAlmacen = false;
+            } else {
+                // Comportamiento normal: volver a selección de salida
+                volverSalidaSeleccion();
+            }
         }
 
         // ========== ALMACÉN NAVIGATION FUNCTIONS ==========
@@ -5298,7 +6083,7 @@
             const cantidad = parseFloat(document.getElementById(inputId).value) || 0;
 
             if (cantidad <= 0) {
-                alert('Ingrese una cantidad válida mayor a 0');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese una cantidad válida mayor a 0</p>', '⚠️');
                 return;
             }
 
@@ -5325,12 +6110,12 @@
             const cantidad = parseFloat(document.getElementById(inputId).value) || 0;
 
             if (cantidad <= 0) {
-                alert('Ingrese una cantidad válida mayor a 0');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese una cantidad válida mayor a 0</p>', '⚠️');
                 return;
             }
 
             if (stockInsumos[insumo] < cantidad) {
-                alert('No hay suficiente stock de ' + getNombreInsumo(insumo) + '\nStock actual: ' + stockInsumos[insumo].toFixed(2) + ' ' + unidad);
+                mostrarModalInfo('Stock Insuficiente', '<p style="text-align: center; color: #dc2626;">No hay suficiente stock de ' + getNombreInsumo(insumo) + '</p><p style="text-align: center; font-size: 0.9rem; color: #64748b; margin-top: 0.5rem;">Stock actual: ' + stockInsumos[insumo].toFixed(2) + ' ' + unidad + '</p>', '❌');
                 return;
             }
 
@@ -5472,23 +6257,23 @@
 
             // Validation
             if (!nombreSelect) {
-                alert('Seleccione un insumo');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Seleccione un insumo</p>', '⚠️');
                 return;
             }
             if (nombreSelect === 'Otro' && !nombreOtro.trim()) {
-                alert('Especifique el nombre del insumo');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Especifique el nombre del insumo</p>', '⚠️');
                 return;
             }
             if (cantidad <= 0) {
-                alert('Ingrese una cantidad válida');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese una cantidad válida</p>', '⚠️');
                 return;
             }
             if (precioUnitario <= 0) {
-                alert('Ingrese un precio unitario válido');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese un precio unitario válido</p>', '⚠️');
                 return;
             }
             if (!fecha) {
-                alert('Ingrese la fecha de ingreso');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese la fecha de ingreso</p>', '⚠️');
                 return;
             }
 
@@ -5510,9 +6295,14 @@
             insumosData.push(insumo);
             localStorage.setItem('insumosAlmacen', JSON.stringify(insumosData));
 
-            alert('Insumo registrado exitosamente:\n\n' +
-                insumo.nombre + ' - ' + insumo.cantidad + ' ' + insumo.unidad + '\n' +
-                'Total: S/' + insumo.total.toFixed(2));
+            var msgInsumo = '<div style="text-align: center;"><div style="font-size: 2.5rem; margin-bottom: 0.5rem;">✅</div>';
+            msgInsumo += '<div style="font-weight: 700; color: #16a34a; margin-bottom: 1rem;">Insumo Registrado</div></div>';
+            msgInsumo += '<div style="background: #f8fafc; border-radius: 8px; padding: 1rem;">';
+            msgInsumo += '<div style="font-weight: 600;">' + insumo.nombre + '</div>';
+            msgInsumo += '<div style="color: #64748b;">' + insumo.cantidad + ' ' + insumo.unidad + '</div>';
+            msgInsumo += '<div style="color: #16a34a; font-weight: 600; margin-top: 0.5rem;">Total: S/' + insumo.total.toFixed(2) + '</div>';
+            msgInsumo += '</div>';
+            mostrarModalInfo('Insumo Registrado', msgInsumo, '📦');
 
             renderInsumosTable();
             closeInsumoModal();
@@ -5825,7 +6615,7 @@
 
             // Determinar si es Bidones de Exportación para prellenar 60kg
             const tipoEnvase = document.getElementById('tipoEnvase').value;
-            const esBidones = tipoEnvase === 'bidones';
+            const esBidones = tipoEnvase === 'bidones' || selectedDestination === 'exportacion';
             const kilosPorDefecto = esBidones ? '60' : '';
 
             // Campo de precio solo visible para admin
@@ -5896,12 +6686,12 @@
             const endIdx = todosCalibres.indexOf(hasta);
 
             if (startIdx === -1 || endIdx === -1) {
-                alert('Seleccione calibres válidos');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Seleccione calibres válidos</p>', '⚠️');
                 return;
             }
 
             if (startIdx > endIdx) {
-                alert('El calibre inicial debe ser menor o igual al final');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">El calibre inicial debe ser menor o igual al final</p>', '⚠️');
                 return;
             }
 
@@ -5928,13 +6718,13 @@
             const valor = input.value.trim();
 
             if (!valor) {
-                alert('Ingrese un valor para el calibre personalizado');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Ingrese un valor para el calibre personalizado</p>', '⚠️');
                 return;
             }
 
             // Verificar si ya existe
             if (CALIBRES_ESTANDAR.includes(valor) || calibresPersonalizados.includes(valor)) {
-                alert('Este calibre ya existe');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Este calibre ya existe</p>', '⚠️');
                 return;
             }
 
@@ -6528,48 +7318,48 @@
             };
 
             if (!entryData.codigoLote) {
-                alert('Por favor ingrese el Código de Lote');
+                mostrarModalInfo('Campo Requerido', '<p style="text-align: center; color: #64748b;">Por favor ingrese el Código de Lote</p>', '⚠️');
                 document.getElementById('codigoLote').focus();
                 return;
             }
 
             if (!entryData.fecha) {
-                alert('Por favor seleccione la Fecha');
+                mostrarModalInfo('Campo Requerido', '<p style="text-align: center; color: #64748b;">Por favor seleccione la Fecha</p>', '⚠️');
                 document.getElementById('fecha').focus();
                 return;
             }
 
             if (!entryData.vendedor) {
-                alert('Por favor ingrese el nombre del Vendedor');
+                mostrarModalInfo('Campo Requerido', '<p style="text-align: center; color: #64748b;">Por favor ingrese el nombre del Vendedor</p>', '⚠️');
                 document.getElementById('vendedor').focus();
                 return;
             }
 
             if (!entryData.supervisor) {
-                alert('Por favor ingrese el nombre del Supervisor');
+                mostrarModalInfo('Campo Requerido', '<p style="text-align: center; color: #64748b;">Por favor ingrese el nombre del Supervisor</p>', '⚠️');
                 document.getElementById('supervisor').focus();
                 return;
             }
 
             if (!entryData.tipoEnvase) {
-                alert('Por favor seleccione el Tipo de Envase');
+                mostrarModalInfo('Campo Requerido', '<p style="text-align: center; color: #64748b;">Por favor seleccione el Tipo de Envase</p>', '⚠️');
                 document.getElementById('tipoEnvase').focus();
                 return;
             }
 
             if (!entryData.cantidad || parseFloat(entryData.cantidad) <= 0) {
-                alert('Por favor ingrese la Cantidad (debe ser mayor a 0)');
+                mostrarModalInfo('Campo Requerido', '<p style="text-align: center; color: #64748b;">Por favor ingrese la Cantidad (debe ser mayor a 0)</p>', '⚠️');
                 document.getElementById('envase_cantidad').focus();
                 return;
             }
 
             if (!selectedColor) {
-                alert('Por favor seleccione el Color de la aceituna');
+                mostrarModalInfo('Campo Requerido', '<p style="text-align: center; color: #64748b;">Por favor seleccione el Color de la aceituna</p>', '⚠️');
                 return;
             }
 
             if (!selectedVariety) {
-                alert('Por favor seleccione la Variedad de la aceituna');
+                mostrarModalInfo('Campo Requerido', '<p style="text-align: center; color: #64748b;">Por favor seleccione la Variedad de la aceituna</p>', '⚠️');
                 return;
             }
 
@@ -7742,7 +8532,7 @@
         function llenarTodosPrecios() {
             const precio = parseFloat(document.getElementById('precioLlenadoTodos').value) || 0;
             if (precio <= 0) {
-                alert('Por favor ingrese un precio válido');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Por favor ingrese un precio válido</p>', '⚠️');
                 return;
             }
 
@@ -7761,7 +8551,7 @@
             const precioHasta = parseFloat(document.getElementById('precioHasta').value) || 0;
 
             if (precioDesde <= 0 || precioHasta <= 0) {
-                alert('Por favor ingrese precios válidos para el rango');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Por favor ingrese precios válidos para el rango</p>', '⚠️');
                 return;
             }
 
@@ -7975,7 +8765,7 @@
             }
 
             if (filteredEntries.length === 0) {
-                alert('No hay datos para exportar');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">No hay datos para exportar</p>', '⚠️');
                 return;
             }
 
@@ -8203,7 +8993,7 @@
             const loteSeleccionado = document.getElementById('reporteLote').value;
 
             if (!loteSeleccionado) {
-                alert('Por favor seleccione un lote específico para exportar.\n\nUse "Exportar Todo" para exportar todos los registros.');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">Por favor seleccione un lote específico para exportar.</p><p style="text-align: center; font-size: 0.85rem; color: #94a3b8; margin-top: 0.5rem;">Use "Exportar Todo" para exportar todos los registros.</p>', '⚠️');
                 return;
             }
 
@@ -8211,7 +9001,7 @@
             let filteredEntries = entries.filter(e => e.codigoLote === loteSeleccionado);
 
             if (filteredEntries.length === 0) {
-                alert('No hay datos para este lote');
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">No hay datos para este lote</p>', '⚠️');
                 return;
             }
 
@@ -8404,6 +9194,741 @@
             URL.revokeObjectURL(link.href);
         }
 
+        // =====================================================
+        // SISTEMA DE ALMACÉN DINÁMICO
+        // Jerarquía: Almacén > Filas > Cuadrantes > Lotes > Calibres
+        // =====================================================
+
+        // Asegurar que almacenData tenga estructura de filas
+        if (!almacenData.filas) {
+            almacenData.filas = [];
+        }
+
+        // Abrir modal de reubicación desde el botón principal
+        function abrirReubicacionDesdeAlmacen() {
+            let html = '<div id="modalReubicacionMenu" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 1rem;">';
+            html += '<div style="background: white; border-radius: 16px; width: 100%; max-width: 400px; overflow: hidden;">';
+            html += '<div style="background: linear-gradient(135deg, #7c3aed, #8b5cf6); color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">';
+            html += '<h3 style="margin: 0;">🔄 Reubicación</h3>';
+            html += '<button onclick="cerrarModalReubicacionMenu()" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer;">×</button>';
+            html += '</div>';
+            html += '<div style="padding: 1.5rem;">';
+            html += '<p style="color: #64748b; margin-bottom: 1.5rem; font-size: 0.9rem; text-align: center;">¿Qué deseas reubicar?</p>';
+
+            html += '<div onclick="abrirReubicacionLote()" style="padding: 1.5rem; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 1rem; cursor: pointer; display: flex; align-items: center; gap: 1rem;">';
+            html += '<div style="width: 50px; height: 50px; background: linear-gradient(135deg, #3d4f31, #5a7247); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📦</div>';
+            html += '<div><div style="font-weight: 700; color: #1e293b; font-size: 1.1rem;">Reubicar Lote</div>';
+            html += '<div style="font-size: 0.85rem; color: #64748b;">Mover un lote completo a otro cuadrante</div></div>';
+            html += '</div>';
+
+            html += '<div onclick="abrirReubicacionCalibre()" style="padding: 1.5rem; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 1rem;">';
+            html += '<div style="width: 50px; height: 50px; background: linear-gradient(135deg, #7c3aed, #8b5cf6); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">⚖️</div>';
+            html += '<div><div style="font-weight: 700; color: #1e293b; font-size: 1.1rem;">Reubicar Calibre</div>';
+            html += '<div style="font-size: 0.85rem; color: #64748b;">Mover un calibre específico a otro cuadrante</div></div>';
+            html += '</div>';
+
+            html += '</div></div></div>';
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function cerrarModalReubicacionMenu() {
+            var modal = document.getElementById('modalReubicacionMenu');
+            if (modal) modal.remove();
+        }
+
+        // ===== REUBICAR LOTE =====
+        function abrirReubicacionLote() {
+            cerrarModalReubicacionMenu();
+            var lotesDisponibles = [];
+            for (var fi = 0; fi < almacenData.filas.length; fi++) {
+                var fila = almacenData.filas[fi];
+                for (var ci = 0; ci < fila.cuadrantes.length; ci++) {
+                    var cuad = fila.cuadrantes[ci];
+                    for (var li = 0; li < cuad.lotes.length; li++) {
+                        var lote = cuad.lotes[li];
+                        var totalKg = 0;
+                        for (var c = 0; c < lote.calibres.length; c++) {
+                            totalKg += lote.calibres[c].kg || 0;
+                        }
+                        lotesDisponibles.push({
+                            fi: fi, ci: ci, li: li,
+                            filaNombre: fila.nombre, cuadNombre: cuad.nombre,
+                            codigo: lote.codigoLote, numCal: lote.calibres.length, kg: totalKg
+                        });
+                    }
+                }
+            }
+            if (lotesDisponibles.length === 0) {
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">No hay lotes en el almacén para reubicar.</p>', '⚠️');
+                return;
+            }
+            var html = '<div id="modalReubicacionLote" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 1rem;">';
+            html += '<div style="background: white; border-radius: 16px; width: 100%; max-width: 600px; max-height: 90vh; overflow: hidden;">';
+            html += '<div style="background: linear-gradient(135deg, #3d4f31, #5a7247); color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">';
+            html += '<h3 style="margin: 0;">📦 Reubicar Lote</h3>';
+            html += '<button onclick="cerrarModalReubicacionLote()" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer;">×</button>';
+            html += '</div>';
+            html += '<div class="modal-scroll" style="padding: 1.5rem; max-height: 60vh; overflow-y: auto;">';
+            html += '<p style="color: #64748b; margin-bottom: 1rem; font-size: 0.9rem;">Selecciona el lote que deseas mover:</p>';
+            for (var i = 0; i < lotesDisponibles.length; i++) {
+                var item = lotesDisponibles[i];
+                html += '<div onclick="seleccionarLoteParaReubicar(' + item.fi + ',' + item.ci + ',' + item.li + ')" style="padding: 1rem; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 0.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">';
+                html += '<div><div style="font-weight: 600; color: #1e293b; margin-bottom: 0.3rem;">📦 ' + item.codigo + '</div>';
+                html += '<div style="font-size: 0.8rem; color: #64748b;">📍 ' + item.filaNombre + ' &gt; ' + item.cuadNombre + '</div></div>';
+                html += '<div style="text-align: right;"><span style="font-weight: 600; color: #3d4f31;">' + item.kg.toFixed(1) + ' Kg</span>';
+                html += '<div style="font-size: 0.7rem; color: #64748b;">' + item.numCal + ' calibre(s)</div></div></div>';
+            }
+            html += '</div></div></div>';
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function cerrarModalReubicacionLote() {
+            var modal = document.getElementById('modalReubicacionLote');
+            if (modal) modal.remove();
+        }
+
+        function seleccionarLoteParaReubicar(fi, ci, li) {
+            cerrarModalReubicacionLote();
+            var lote = almacenData.filas[fi].cuadrantes[ci].lotes[li];
+            var totalKg = 0;
+            for (var c = 0; c < lote.calibres.length; c++) totalKg += lote.calibres[c].kg || 0;
+            var destinos = [];
+            for (var f = 0; f < almacenData.filas.length; f++) {
+                for (var c = 0; c < almacenData.filas[f].cuadrantes.length; c++) {
+                    if (f !== fi || c !== ci) {
+                        destinos.push({ f: f, c: c, nombre: almacenData.filas[f].nombre + ' &gt; ' + almacenData.filas[f].cuadrantes[c].nombre });
+                    }
+                }
+            }
+            if (destinos.length === 0) {
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">No hay otros cuadrantes disponibles.</p>', '⚠️');
+                return;
+            }
+            var html = '<div id="modalDestinoLote" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 1rem;">';
+            html += '<div style="background: white; border-radius: 16px; width: 100%; max-width: 400px;">';
+            html += '<div style="background: linear-gradient(135deg, #3d4f31, #5a7247); color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-radius: 16px 16px 0 0;">';
+            html += '<h3 style="margin: 0;">📍 Destino del Lote</h3>';
+            html += '<button onclick="cerrarModalDestinoLote()" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer;">×</button>';
+            html += '</div>';
+            html += '<div class="modal-scroll" style="padding: 1.5rem; max-height: 60vh; overflow-y: auto;">';
+            html += '<p style="margin-bottom: 1rem; color: #64748b; font-size: 0.9rem;">Moviendo: <strong style="color: #1e293b;">📦 ' + lote.codigoLote + '</strong> (' + totalKg.toFixed(1) + ' Kg)</p>';
+            for (var i = 0; i < destinos.length; i++) {
+                var d = destinos[i];
+                html += '<div onclick="ejecutarMoverLote(' + fi + ',' + ci + ',' + li + ',' + d.f + ',' + d.c + ')" style="padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 0.5rem; cursor: pointer;">📍 ' + d.nombre + '</div>';
+            }
+            html += '</div></div></div>';
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function cerrarModalDestinoLote() {
+            var modal = document.getElementById('modalDestinoLote');
+            if (modal) modal.remove();
+        }
+
+        function ejecutarMoverLote(ofi, oci, oli, dfi, dci) {
+            var lote = almacenData.filas[ofi].cuadrantes[oci].lotes[oli];
+            var copia = JSON.parse(JSON.stringify(lote));
+            almacenData.filas[dfi].cuadrantes[dci].lotes.push(copia);
+            almacenData.filas[ofi].cuadrantes[oci].lotes.splice(oli, 1);
+            guardarAlmacen();
+            cerrarModalDestinoLote();
+            renderizarAlmacen();
+        }
+
+        // ===== REUBICAR CALIBRE =====
+        function abrirReubicacionCalibre() {
+            cerrarModalReubicacionMenu();
+            var calibres = [];
+            for (var fi = 0; fi < almacenData.filas.length; fi++) {
+                var fila = almacenData.filas[fi];
+                for (var ci = 0; ci < fila.cuadrantes.length; ci++) {
+                    var cuad = fila.cuadrantes[ci];
+                    for (var li = 0; li < cuad.lotes.length; li++) {
+                        var lote = cuad.lotes[li];
+                        for (var cali = 0; cali < lote.calibres.length; cali++) {
+                            var cal = lote.calibres[cali];
+                            calibres.push({
+                                fi: fi, ci: ci, li: li, cali: cali,
+                                filaNombre: fila.nombre, cuadNombre: cuad.nombre,
+                                loteCodigo: lote.codigoLote, calibre: cal.calibre, kg: cal.kg
+                            });
+                        }
+                    }
+                }
+            }
+            if (calibres.length === 0) {
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">No hay calibres en el almacén para reubicar.</p>', '⚠️');
+                return;
+            }
+            var html = '<div id="modalReubicacionGeneral" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 1rem;">';
+            html += '<div style="background: white; border-radius: 16px; width: 100%; max-width: 600px; max-height: 90vh; overflow: hidden;">';
+            html += '<div style="background: linear-gradient(135deg, #7c3aed, #8b5cf6); color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">';
+            html += '<h3 style="margin: 0;">⚖️ Reubicar Calibre</h3>';
+            html += '<button onclick="cerrarModalReubicacionGeneral()" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer;">×</button>';
+            html += '</div>';
+            html += '<div class="modal-scroll" style="padding: 1.5rem; max-height: 60vh; overflow-y: auto;">';
+            html += '<p style="color: #64748b; margin-bottom: 1rem; font-size: 0.9rem;">Selecciona el calibre que deseas mover:</p>';
+            for (var i = 0; i < calibres.length; i++) {
+                var item = calibres[i];
+                html += '<div onclick="seleccionarCalibreParaReubicar(' + item.fi + ',' + item.ci + ',' + item.li + ',' + item.cali + ')" style="padding: 1rem; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 0.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">';
+                html += '<div><div style="font-weight: 600; color: #1e293b; margin-bottom: 0.3rem;">⚖️ ' + item.calibre + '</div>';
+                html += '<div style="font-size: 0.8rem; color: #64748b;">📍 ' + item.filaNombre + ' &gt; ' + item.cuadNombre + ' &gt; ' + item.loteCodigo + '</div></div>';
+                html += '<div style="text-align: right;"><span style="font-weight: 600; color: #8b5cf6;">' + item.kg + ' Kg</span></div></div>';
+            }
+            html += '</div></div></div>';
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function cerrarModalReubicacionGeneral() {
+            var modal = document.getElementById('modalReubicacionGeneral');
+            if (modal) modal.remove();
+        }
+
+        function seleccionarCalibreParaReubicar(fi, ci, li, cali) {
+            cerrarModalReubicacionGeneral();
+            moverCalibre(fi, ci, li, cali);
+        }
+
+        // Guardar datos del almacén
+        function guardarAlmacen() {
+            localStorage.setItem('almacenData', JSON.stringify(almacenData));
+        }
+
+        // Renderizar el almacén completo
+        function renderizarAlmacen() {
+            const container = document.getElementById('filasAlmacenContainer');
+            const sinFilas = document.getElementById('sinFilas');
+
+            if (!container) return;
+
+            if (almacenData.filas.length === 0) {
+                container.innerHTML = `
+                    <div id="sinFilas" style="text-align: center; padding: 3rem; color: #94a3b8;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+                        <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">No hay filas en el almacén</p>
+                        <p style="font-size: 0.9rem;">Haz clic en "Nueva Fila" para comenzar a organizar tu almacén</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            almacenData.filas.forEach((fila, filaIndex) => {
+                html += `
+                    <div class="fila-almacen" style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem;">
+                        <!-- Header de la Fila -->
+                        <div style="background: linear-gradient(135deg, #3d4f31, #5a7247); color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                <span style="font-size: 1.5rem;">📍</span>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700;">${fila.nombre}</h3>
+                                    <p style="margin: 0; font-size: 0.8rem; opacity: 0.8;">${fila.cuadrantes.length} cuadrante(s)</p>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button onclick="agregarCuadrante(${filaIndex})" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500;">
+                                    ➕ Cuadrante
+                                </button>
+                                <button onclick="editarFila(${filaIndex})" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">
+                                    ✏️
+                                </button>
+                                <button onclick="eliminarFila(${filaIndex})" style="background: rgba(239,68,68,0.8); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Cuadrantes de la Fila -->
+                        <div style="padding: 1rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+                    ${fila.cuadrantes.length === 0 ? `
+                                <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #94a3b8; border: 2px dashed #e2e8f0; border-radius: 10px;">
+                                    <p style="margin: 0;">Sin cuadrantes - Haz clic en "+ Cuadrante"</p>
+                                </div>
+                            ` : fila.cuadrantes.map((cuadrante, cuadranteIndex) => renderizarCuadrante(cuadrante, filaIndex, cuadranteIndex)).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Renderizar un cuadrante
+        function renderizarCuadrante(cuadrante, filaIndex, cuadranteIndex) {
+            const totalKg = cuadrante.lotes.reduce((sum, lote) => {
+                return sum + lote.calibres.reduce((s, c) => s + (c.kg || 0), 0);
+            }, 0);
+
+            return `
+                <div class="cuadrante-card" style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                    <!-- Header Cuadrante -->
+                    <div style="background: #1e293b; color: white; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-weight: 600; font-size: 0.95rem;">${cuadrante.nombre}</span>
+                            <span style="font-size: 0.75rem; opacity: 0.7; margin-left: 0.5rem;">(${totalKg.toFixed(1)} Kg)</span>
+                        </div>
+                        <div style="display: flex; gap: 0.3rem;">
+                            <button onclick="agregarLoteACuadrante(${filaIndex}, ${cuadranteIndex})" style="background: #3d4f31; color: white; border: none; padding: 0.3rem 0.5rem; border-radius: 4px; cursor: pointer; font-size: 0.7rem;">
+                                + Lote
+                            </button>
+                            <button onclick="eliminarCuadrante(${filaIndex}, ${cuadranteIndex})" style="background: #dc2626; color: white; border: none; padding: 0.3rem 0.5rem; border-radius: 4px; cursor: pointer; font-size: 0.7rem;">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Contenido del Cuadrante -->
+                    <div style="padding: 0.8rem; max-height: 300px; overflow-y: auto;">
+                        ${cuadrante.lotes.length === 0 ? `
+                            <p style="text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 1rem;">Sin lotes asignados</p>
+                        ` : cuadrante.lotes.map((lote, loteIndex) => renderizarLoteEnCuadrante(lote, filaIndex, cuadranteIndex, loteIndex)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Renderizar un lote dentro de un cuadrante
+        function renderizarLoteEnCuadrante(lote, filaIndex, cuadranteIndex, loteIndex) {
+            const totalLoteKg = lote.calibres.reduce((sum, c) => sum + (c.kg || 0), 0);
+
+            return `
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 0.5rem; overflow: hidden;">
+                    <!-- Header del Lote -->
+                    <div style="background: #e2e8f0; padding: 0.5rem 0.8rem; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">📦 ${lote.codigoLote || 'Lote'}</span>
+                        <div style="display: flex; align-items: center; gap: 0.3rem;">
+                            <span style="font-size: 0.75rem; color: #64748b;">${totalLoteKg.toFixed(1)} Kg</span>
+                            <button onclick="quitarLoteDeCuadrante(${filaIndex}, ${cuadranteIndex}, ${loteIndex})" style="background: transparent; border: none; color: #dc2626; cursor: pointer; font-size: 0.8rem;">✕</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Calibres del Lote -->
+                    <div style="padding: 0.5rem;">
+                        ${lote.calibres.map((calibre, calibreIndex) => `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0.5rem; background: white; border-radius: 4px; margin-bottom: 0.3rem; font-size: 0.8rem;">
+                                <span style="color: #3d4f31; font-weight: 500;">${calibre.calibre}</span>
+                                <span style="color: #64748b;">${calibre.kg} Kg</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Abrir modal para nueva fila
+        function abrirModalNuevaFila() {
+            var html = '<div id="modalNuevaFila" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; padding: 1rem;">';
+            html += '<div style="background: white; border-radius: 16px; width: 100%; max-width: 400px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">';
+            html += '<div style="background: linear-gradient(135deg, #3d4f31, #5a7247); color: white; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">';
+            html += '<div style="display: flex; align-items: center; gap: 0.8rem;"><span style="font-size: 1.5rem;">📁</span><h3 style="margin: 0; font-size: 1.1rem;">Nueva Fila</h3></div>';
+            html += '<button onclick="cerrarModalNuevaFila()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; font-size: 1.2rem; cursor: pointer;">×</button>';
+            html += '</div>';
+            html += '<div style="padding: 1.5rem;">';
+            html += '<label style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem; font-weight: 600;">Nombre de la nueva fila:</label>';
+            html += '<input type="text" id="inputNuevaFila" placeholder="Ej: Zona A" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box;">';
+            html += '</div>';
+            html += '<div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.8rem;">';
+            html += '<button onclick="cerrarModalNuevaFila()" style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.7rem 1.2rem; border-radius: 8px; cursor: pointer; color: #64748b;">Cancelar</button>';
+            html += '<button onclick="confirmarNuevaFila()" style="background: linear-gradient(135deg, #3d4f31, #5a7247); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Crear Fila</button>';
+            html += '</div></div></div>';
+            document.body.insertAdjacentHTML('beforeend', html);
+            document.getElementById('inputNuevaFila').focus();
+        }
+
+        function cerrarModalNuevaFila() {
+            var modal = document.getElementById('modalNuevaFila');
+            if (modal) modal.remove();
+        }
+
+        function confirmarNuevaFila() {
+            var nombre = document.getElementById('inputNuevaFila').value.trim();
+            if (nombre) {
+                almacenData.filas.push({ nombre: nombre, cuadrantes: [] });
+                guardarAlmacen();
+                renderizarAlmacen();
+            }
+            cerrarModalNuevaFila();
+        }
+
+        // Editar nombre de fila
+        function editarFila(filaIndex) {
+            var fila = almacenData.filas[filaIndex];
+            var html = '<div id="modalEditarFila" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; padding: 1rem;">';
+            html += '<div style="background: white; border-radius: 16px; width: 100%; max-width: 400px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">';
+            html += '<div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">';
+            html += '<div style="display: flex; align-items: center; gap: 0.8rem;"><span style="font-size: 1.5rem;">✏️</span><h3 style="margin: 0; font-size: 1.1rem;">Editar Fila</h3></div>';
+            html += '<button onclick="cerrarModalEditarFila()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; font-size: 1.2rem; cursor: pointer;">×</button>';
+            html += '</div>';
+            html += '<div style="padding: 1.5rem;">';
+            html += '<label style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem; font-weight: 600;">Nuevo nombre de la fila:</label>';
+            html += '<input type="text" id="inputEditarFila" value="' + fila.nombre + '" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box;">';
+            html += '<input type="hidden" id="indexEditarFila" value="' + filaIndex + '">';
+            html += '</div>';
+            html += '<div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.8rem;">';
+            html += '<button onclick="cerrarModalEditarFila()" style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.7rem 1.2rem; border-radius: 8px; cursor: pointer; color: #64748b;">Cancelar</button>';
+            html += '<button onclick="confirmarEditarFila()" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Guardar</button>';
+            html += '</div></div></div>';
+            document.body.insertAdjacentHTML('beforeend', html);
+            document.getElementById('inputEditarFila').focus();
+            document.getElementById('inputEditarFila').select();
+        }
+
+        function cerrarModalEditarFila() {
+            var modal = document.getElementById('modalEditarFila');
+            if (modal) modal.remove();
+        }
+
+        function confirmarEditarFila() {
+            var nombre = document.getElementById('inputEditarFila').value.trim();
+            var index = parseInt(document.getElementById('indexEditarFila').value);
+            if (nombre) {
+                almacenData.filas[index].nombre = nombre;
+                guardarAlmacen();
+                renderizarAlmacen();
+            }
+            cerrarModalEditarFila();
+        }
+
+        // Eliminar fila
+        function eliminarFila(filaIndex) {
+            var fila = almacenData.filas[filaIndex];
+            var html = '<div id="modalConfirmarEliminar" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; padding: 1rem;">';
+            html += '<div style="background: white; border-radius: 16px; width: 100%; max-width: 400px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">';
+            html += '<div style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">';
+            html += '<div style="display: flex; align-items: center; gap: 0.8rem;"><span style="font-size: 1.5rem;">🗑️</span><h3 style="margin: 0; font-size: 1.1rem;">Eliminar Fila</h3></div>';
+            html += '<button onclick="cerrarModalConfirmarEliminar()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; font-size: 1.2rem; cursor: pointer;">×</button>';
+            html += '</div>';
+            html += '<div style="padding: 1.5rem; text-align: center;">';
+            html += '<p style="color: #1e293b; margin-bottom: 0.5rem;">¿Eliminar la fila <strong>"' + fila.nombre + '"</strong>?</p>';
+            html += '<p style="color: #dc2626; font-size: 0.85rem;">Esta acción eliminará todos sus cuadrantes y no se puede deshacer.</p>';
+            html += '<input type="hidden" id="indexEliminarFila" value="' + filaIndex + '">';
+            html += '</div>';
+            html += '<div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.8rem;">';
+            html += '<button onclick="cerrarModalConfirmarEliminar()" style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.7rem 1.2rem; border-radius: 8px; cursor: pointer; color: #64748b;">Cancelar</button>';
+            html += '<button onclick="confirmarEliminarFila()" style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Eliminar</button>';
+            html += '</div></div></div>';
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function cerrarModalConfirmarEliminar() {
+            var modal = document.getElementById('modalConfirmarEliminar');
+            if (modal) modal.remove();
+        }
+
+        function confirmarEliminarFila() {
+            var index = parseInt(document.getElementById('indexEliminarFila').value);
+            almacenData.filas.splice(index, 1);
+            guardarAlmacen();
+            renderizarAlmacen();
+            cerrarModalConfirmarEliminar();
+        }
+
+        // Agregar cuadrante a una fila
+        function agregarCuadrante(filaIndex) {
+            var html = '<div id="modalNuevoCuadrante" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; padding: 1rem;">';
+            html += '<div style="background: white; border-radius: 16px; width: 100%; max-width: 400px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">';
+            html += '<div style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">';
+            html += '<div style="display: flex; align-items: center; gap: 0.8rem;"><span style="font-size: 1.5rem;">📦</span><h3 style="margin: 0; font-size: 1.1rem;">Nuevo Cuadrante</h3></div>';
+            html += '<button onclick="cerrarModalNuevoCuadrante()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; font-size: 1.2rem; cursor: pointer;">×</button>';
+            html += '</div>';
+            html += '<div style="padding: 1.5rem;">';
+            html += '<label style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem; font-weight: 600;">Nombre del cuadrante:</label>';
+            html += '<input type="text" id="inputNuevoCuadrante" placeholder="Ej: Cuadrante 1" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box;">';
+            html += '<input type="hidden" id="indexFilaCuadrante" value="' + filaIndex + '">';
+            html += '</div>';
+            html += '<div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.8rem;">';
+            html += '<button onclick="cerrarModalNuevoCuadrante()" style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.7rem 1.2rem; border-radius: 8px; cursor: pointer; color: #64748b;">Cancelar</button>';
+            html += '<button onclick="confirmarNuevoCuadrante()" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Crear</button>';
+            html += '</div></div></div>';
+            document.body.insertAdjacentHTML('beforeend', html);
+            document.getElementById('inputNuevoCuadrante').focus();
+        }
+
+        function cerrarModalNuevoCuadrante() {
+            var modal = document.getElementById('modalNuevoCuadrante');
+            if (modal) modal.remove();
+        }
+
+        function confirmarNuevoCuadrante() {
+            var nombre = document.getElementById('inputNuevoCuadrante').value.trim();
+            var filaIndex = parseInt(document.getElementById('indexFilaCuadrante').value);
+            if (nombre) {
+                almacenData.filas[filaIndex].cuadrantes.push({ nombre: nombre, lotes: [] });
+                guardarAlmacen();
+                renderizarAlmacen();
+            }
+            cerrarModalNuevoCuadrante();
+        }
+
+        // Eliminar cuadrante
+        function eliminarCuadrante(filaIndex, cuadranteIndex) {
+            var cuadrante = almacenData.filas[filaIndex].cuadrantes[cuadranteIndex];
+            var html = '<div id="modalConfirmarEliminarCuad" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; padding: 1rem;">';
+            html += '<div style="background: white; border-radius: 16px; width: 100%; max-width: 400px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">';
+            html += '<div style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">';
+            html += '<div style="display: flex; align-items: center; gap: 0.8rem;"><span style="font-size: 1.5rem;">🗑️</span><h3 style="margin: 0; font-size: 1.1rem;">Eliminar Cuadrante</h3></div>';
+            html += '<button onclick="cerrarModalConfirmarEliminarCuad()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; font-size: 1.2rem; cursor: pointer;">×</button>';
+            html += '</div>';
+            html += '<div style="padding: 1.5rem; text-align: center;">';
+            html += '<p style="color: #1e293b; margin-bottom: 0.5rem;">¿Eliminar el cuadrante <strong>"' + cuadrante.nombre + '"</strong>?</p>';
+            html += '<p style="color: #dc2626; font-size: 0.85rem;">Esta acción no se puede deshacer.</p>';
+            html += '<input type="hidden" id="indexFilaElimCuad" value="' + filaIndex + '">';
+            html += '<input type="hidden" id="indexCuadElimCuad" value="' + cuadranteIndex + '">';
+            html += '</div>';
+            html += '<div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.8rem;">';
+            html += '<button onclick="cerrarModalConfirmarEliminarCuad()" style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.7rem 1.2rem; border-radius: 8px; cursor: pointer; color: #64748b;">Cancelar</button>';
+            html += '<button onclick="confirmarEliminarCuadrante()" style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Eliminar</button>';
+            html += '</div></div></div>';
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function cerrarModalConfirmarEliminarCuad() {
+            var modal = document.getElementById('modalConfirmarEliminarCuad');
+            if (modal) modal.remove();
+        }
+
+        function confirmarEliminarCuadrante() {
+            var filaIndex = parseInt(document.getElementById('indexFilaElimCuad').value);
+            var cuadranteIndex = parseInt(document.getElementById('indexCuadElimCuad').value);
+            almacenData.filas[filaIndex].cuadrantes.splice(cuadranteIndex, 1);
+            guardarAlmacen();
+            renderizarAlmacen();
+            cerrarModalConfirmarEliminarCuad();
+        }
+
+        // Agregar lote a un cuadrante (seleccionar de los lotes registrados)
+        function agregarLoteACuadrante(filaIndex, cuadranteIndex) {
+            // Crear modal de selección de lotes
+            const lotesDisponibles = entries.filter(e => e.codigoLote && e.calibres && e.calibres.length > 0);
+
+            if (lotesDisponibles.length === 0) {
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">No hay lotes con calibres registrados. Primero registra entradas con calibres.</p>', '⚠️');
+                return;
+            }
+
+            let html = `
+                <div id="modalSeleccionLote" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+                    <div style="background: white; border-radius: 16px; width: 90%; max-width: 500px; max-height: 80vh; overflow: hidden;">
+                        <div style="background: #3d4f31; color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="margin: 0;">Seleccionar Lote</h3>
+                            <button onclick="cerrarModalSeleccionLote()" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer;">×</button>
+                        </div>
+                        <div class="modal-scroll" style="padding: 1rem; max-height: 60vh; overflow-y: auto;">
+                            ${lotesDisponibles.map(lote => `
+                                <div onclick="seleccionarLote(${filaIndex}, ${cuadranteIndex}, ${lote.id})" style="padding: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 0.5rem; cursor: pointer; transition: all 0.2s;">
+                                    <div style="font-weight: 600; color: #1e293b;">${lote.codigoLote}</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">${lote.vendedor || 'Sin vendedor'} - ${lote.calibres.length} calibre(s)</div>
+                                    <div style="font-size: 0.8rem; color: #3d4f31; margin-top: 0.3rem;">
+                                        ${lote.calibres.map(c => c.calibre + ' (' + c.subtotal + ' Kg)').join(', ')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        // Cerrar modal de selección de lote
+        function cerrarModalSeleccionLote() {
+            const modal = document.getElementById('modalSeleccionLote');
+            if (modal) modal.remove();
+        }
+
+        // Seleccionar un lote para agregar al cuadrante
+        function seleccionarLote(filaIndex, cuadranteIndex, loteId) {
+            const entry = entries.find(e => e.id === loteId);
+            if (!entry) return;
+
+            // Crear estructura del lote para el cuadrante
+            const loteParaCuadrante = {
+                loteId: loteId,
+                codigoLote: entry.codigoLote,
+                calibres: entry.calibres.map(c => ({
+                    calibre: c.calibre,
+                    kg: c.subtotal || 0
+                }))
+            };
+
+            almacenData.filas[filaIndex].cuadrantes[cuadranteIndex].lotes.push(loteParaCuadrante);
+            guardarAlmacen();
+            cerrarModalSeleccionLote();
+            renderizarAlmacen();
+        }
+
+        var loteParaQuitar = null;
+
+        // Quitar lote de un cuadrante
+        function quitarLoteDeCuadrante(filaIndex, cuadranteIndex, loteIndex) {
+            loteParaQuitar = { fi: filaIndex, ci: cuadranteIndex, li: loteIndex };
+            var html = '<div id="modalConfirmarQuitarLote" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; padding: 1rem;">';
+            html += '<div style="background: white; border-radius: 16px; width: 100%; max-width: 400px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">';
+            html += '<div style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">';
+            html += '<div style="display: flex; align-items: center; gap: 0.8rem;"><span style="font-size: 1.5rem;">🗑️</span><h3 style="margin: 0; font-size: 1.1rem;">Quitar Lote</h3></div>';
+            html += '<button onclick="cerrarModalQuitarLote()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; font-size: 1.2rem; cursor: pointer;">×</button>';
+            html += '</div>';
+            html += '<div style="padding: 1.5rem; text-align: center;">';
+            html += '<p style="color: #1e293b; margin-bottom: 0.5rem;">¿Quitar este lote del cuadrante?</p>';
+            html += '<p style="color: #64748b; font-size: 0.85rem;">El lote será removido de este cuadrante.</p>';
+            html += '</div>';
+            html += '<div style="padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.8rem;">';
+            html += '<button onclick="cerrarModalQuitarLote()" style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.7rem 1.2rem; border-radius: 8px; cursor: pointer; color: #64748b;">Cancelar</button>';
+            html += '<button onclick="confirmarQuitarLote()" style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Quitar</button>';
+            html += '</div></div></div>';
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function cerrarModalQuitarLote() {
+            var modal = document.getElementById('modalConfirmarQuitarLote');
+            if (modal) modal.remove();
+            loteParaQuitar = null;
+        }
+
+        function confirmarQuitarLote() {
+            if (loteParaQuitar) {
+                almacenData.filas[loteParaQuitar.fi].cuadrantes[loteParaQuitar.ci].lotes.splice(loteParaQuitar.li, 1);
+                guardarAlmacen();
+                renderizarAlmacen();
+            }
+            cerrarModalQuitarLote();
+        }
+
+        // Mover calibre a otro cuadrante
+        function moverCalibre(filaIndex, cuadranteIndex, loteIndex, calibreIndex) {
+            const calibre = almacenData.filas[filaIndex].cuadrantes[cuadranteIndex].lotes[loteIndex].calibres[calibreIndex];
+
+            // Crear lista de destinos posibles
+            let destinos = [];
+            almacenData.filas.forEach((fila, fi) => {
+                fila.cuadrantes.forEach((cuad, ci) => {
+                    if (fi !== filaIndex || ci !== cuadranteIndex) {
+                        destinos.push({
+                            filaIndex: fi,
+                            cuadranteIndex: ci,
+                            nombre: `${fila.nombre} > ${cuad.nombre} `
+                        });
+                    }
+                });
+            });
+
+            if (destinos.length === 0) {
+                mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">No hay otros cuadrantes disponibles. Crea más cuadrantes primero.</p>', '⚠️');
+                return;
+            }
+
+            let html = `
+                <div id="modalMoverCalibre" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+                    <div style="background: white; border-radius: 16px; width: 90%; max-width: 400px;">
+                        <div style="background: #8b5cf6; color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-radius: 16px 16px 0 0;">
+                            <h3 style="margin: 0;">🔄 Mover Calibre</h3>
+                            <button onclick="cerrarModalMoverCalibre()" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer;">×</button>
+                        </div>
+                        <div class="modal-scroll" style="padding: 1.5rem; max-height: 60vh; overflow-y: auto;">
+                            <p style="margin-bottom: 1rem; color: #64748b; font-size: 0.9rem;">Moviendo: <strong style="color: #1e293b;">${calibre.calibre} (${calibre.kg} Kg)</strong></p>
+                            <p style="margin-bottom: 0.5rem; font-weight: 600; color: #1e293b;">Selecciona destino:</p>
+                            ${destinos.map((d, i) => `
+                                <div onclick="ejecutarMoverCalibre(${filaIndex}, ${cuadranteIndex}, ${loteIndex}, ${calibreIndex}, ${d.filaIndex}, ${d.cuadranteIndex})" 
+                                     style="padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 0.5rem; cursor: pointer; transition: all 0.2s;"
+                                     onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                                    📍 ${d.nombre}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        // Cerrar modal de mover calibre
+        function cerrarModalMoverCalibre() {
+            const modal = document.getElementById('modalMoverCalibre');
+            if (modal) modal.remove();
+        }
+
+        // Ejecutar el movimiento del calibre
+        function ejecutarMoverCalibre(origenFilaIndex, origenCuadranteIndex, origenLoteIndex, calibreIndex, destinoFilaIndex, destinoCuadranteIndex) {
+            const calibre = almacenData.filas[origenFilaIndex].cuadrantes[origenCuadranteIndex].lotes[origenLoteIndex].calibres[calibreIndex];
+            const loteOrigen = almacenData.filas[origenFilaIndex].cuadrantes[origenCuadranteIndex].lotes[origenLoteIndex];
+
+            // Buscar si el lote ya existe en el destino
+            const cuadranteDestino = almacenData.filas[destinoFilaIndex].cuadrantes[destinoCuadranteIndex];
+            let loteDestino = cuadranteDestino.lotes.find(l => l.loteId === loteOrigen.loteId);
+
+            if (!loteDestino) {
+                // Crear el lote en el destino si no existe
+                loteDestino = {
+                    loteId: loteOrigen.loteId,
+                    codigoLote: loteOrigen.codigoLote,
+                    calibres: []
+                };
+                cuadranteDestino.lotes.push(loteDestino);
+            }
+
+            // Agregar calibre al destino
+            loteDestino.calibres.push({ ...calibre });
+
+            // Quitar calibre del origen
+            almacenData.filas[origenFilaIndex].cuadrantes[origenCuadranteIndex].lotes[origenLoteIndex].calibres.splice(calibreIndex, 1);
+
+            // Si el lote origen queda sin calibres, eliminarlo
+            if (almacenData.filas[origenFilaIndex].cuadrantes[origenCuadranteIndex].lotes[origenLoteIndex].calibres.length === 0) {
+                almacenData.filas[origenFilaIndex].cuadrantes[origenCuadranteIndex].lotes.splice(origenLoteIndex, 1);
+            }
+
+            guardarAlmacen();
+            cerrarModalMoverCalibre();
+            renderizarAlmacen();
+        }
+
+        // Buscar en el almacén
+        function buscarEnAlmacen() {
+            const termino = document.getElementById('searchCodigo').value.toLowerCase().trim();
+            if (!termino) {
+                renderizarAlmacen();
+                return;
+            }
+
+            // Resaltar coincidencias (simplificado: solo alertar)
+            let encontrados = [];
+            almacenData.filas.forEach((fila, fi) => {
+                fila.cuadrantes.forEach((cuad, ci) => {
+                    cuad.lotes.forEach((lote, li) => {
+                        const codigoLote = lote.codigoLote || '';
+                        if (codigoLote.toLowerCase().includes(termino)) {
+                            encontrados.push(`${fila.nombre} > ${cuad.nombre} > ${codigoLote}`);
+                        }
+                        lote.calibres.forEach(cal => {
+                            const calibreNombre = cal.calibre || '';
+                            if (calibreNombre.toLowerCase().includes(termino)) {
+                                encontrados.push(`${fila.nombre} > ${cuad.nombre} > ${codigoLote} > ${calibreNombre}`);
+                            }
+                        });
+                    });
+                });
+            });
+
+            if (encontrados.length > 0) {
+                var contenidoBusqueda = '<div style="margin-bottom: 0.5rem; color: #64748b;">Se encontraron <strong style="color: #16a34a;">' + encontrados.length + '</strong> resultados:</div>';
+                contenidoBusqueda += '<div style="max-height: 300px; overflow-y: auto;">';
+                encontrados.forEach(function (item) {
+                    contenidoBusqueda += '<div style="padding: 0.6rem; background: #f8fafc; border-radius: 6px; margin-bottom: 0.4rem; font-size: 0.9rem;">📍 ' + item + '</div>';
+                });
+                contenidoBusqueda += '</div>';
+                mostrarModalInfo('Resultados de Búsqueda', contenidoBusqueda, '🔍');
+            } else {
+                mostrarModalInfo('Sin Resultados', '<p style="text-align: center; color: #64748b; padding: 1rem;">No se encontraron resultados para: <strong>' + termino + '</strong></p>', '🔍');
+            }
+        }
+
+        // Inicializar almacén cuando se muestra la sección
+        function initAlmacenAceitunas() {
+            renderizarAlmacen();
+        }
+
         // Initialize reports when section is shown
         const originalShowSection = showSection;
         showSection = function (section) {
@@ -8414,6 +9939,9 @@
             if (section === 'record') {
                 initRecordAnos();
                 renderRecordHistorico();
+            }
+            if (section === 'almacen') {
+                initAlmacenAceitunas();
             }
         };
     </script>
