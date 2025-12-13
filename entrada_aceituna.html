@@ -1666,7 +1666,7 @@
                 </svg>
                 Almacén
             </div>
-            <div class="nav-item" data-section="salida" onclick="showSection('salida')">
+            <div class="nav-item" data-section="salida" id="navSalida" onclick="showSection('salida')">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
@@ -1684,7 +1684,7 @@
                 </svg>
                 Reportes
             </div>
-            <div class="nav-item" data-section="record" onclick="showSection('record')">
+            <div class="nav-item" data-section="record" id="navRecord" onclick="showSection('record')">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="20" x2="18" y2="10"></line>
                     <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -2365,9 +2365,12 @@
                                     <th id="thGastosOpCol"
                                         style="padding: 0.6rem; text-align: right; border-bottom: 2px solid #3d4f31; white-space: nowrap; font-size: 0.8rem;">
                                         Gastos Op.</th>
+                                    <th id="thValorVentaCol"
+                                        style="padding: 0.6rem; text-align: right; border-bottom: 2px solid #3d4f31; white-space: nowrap; font-size: 0.8rem;">
+                                        Valor Venta</th>
                                     <th id="thGananciaCol"
-                                        style="padding: 0.6rem; text-align: right; border-bottom: 2px solid #3d4f31; white-space: nowrap; font-size: 0.8rem; font-weight: 700;">
-                                        Gan. Netas</th>
+                                        style="padding: 0.6rem; text-align: right; border-bottom: 2px solid #3d4f31; white-space: nowrap; font-size: 0.8rem; font-weight: 700; color: #16a34a;">
+                                        Ganancia</th>
                                 </tr>
                             </thead>
                             <tbody id="reporteTableBody">
@@ -2401,16 +2404,6 @@
                                 style="min-width: 120px;">
                                 <!-- Se llenará dinámicamente -->
                             </select>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button onclick="exportarRecordPDF()"
-                                style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                                📄 Exportar PDF
-                            </button>
-                            <button onclick="exportarRecordExcel()"
-                                style="background: linear-gradient(135deg, #16a34a, #22c55e); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                                📊 Exportar Excel
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -3450,7 +3443,7 @@
                                     max="14">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Agua (m³)</label>
+                                <label class="form-label">Agua</label>
                                 <input type="number" class="form-input" id="aguaCalidad" placeholder="0.00" step="0.01">
                             </div>
                         </div>
@@ -4325,6 +4318,12 @@
             return currentUserRole === 'admin';
         }
 
+        // Función para verificar si puede editar/eliminar ventas
+        // Solo admin puede editar o eliminar ventas registradas
+        function puedeEditarVentas() {
+            return currentUserRole === 'admin';
+        }
+
         // Varieties by color
         const varietiesByColor = {
             verde: ['Manzanilla', 'Ascolana', 'Soda', 'Sal'],
@@ -4435,6 +4434,17 @@
             if (!puedeVerReportes()) {
                 const reportesNav = document.querySelector('[data-section="reportes"]');
                 if (reportesNav) reportesNav.style.display = 'none';
+            }
+
+            // Ocultar Salida y Record Histórico si no es admin
+            if (!esAdmin()) {
+                // Ocultar Salida del menú
+                const salidaNav = document.getElementById('navSalida');
+                if (salidaNav) salidaNav.style.display = 'none';
+
+                // Ocultar Record Histórico del menú
+                const recordNav = document.getElementById('navRecord');
+                if (recordNav) recordNav.style.display = 'none';
             }
         }
 
@@ -5498,12 +5508,14 @@
                             <button onclick="verDetalleVenta(${venta.id})" 
                                 style="background: #e0f2fe; border: none; padding: 0.4rem 0.6rem; border-radius: 6px; cursor: pointer; margin-right: 0.3rem;" 
                                 title="Ver detalle">👁️</button>
+                            ${puedeEditarVentas() ? `
                             <button onclick="editarVenta(${venta.id})" 
                                 style="background: #fef3c7; border: none; padding: 0.4rem 0.6rem; border-radius: 6px; cursor: pointer; margin-right: 0.3rem;" 
                                 title="Editar">✏️</button>
                             <button onclick="eliminarVenta(${venta.id})" 
                                 style="background: #fee2e2; border: none; padding: 0.4rem 0.6rem; border-radius: 6px; cursor: pointer; color: #dc2626;" 
                                 title="Eliminar">🗑️</button>
+                            ` : ''}
                         </td>
                     </tr>
                 `;
@@ -5559,6 +5571,12 @@
         }
 
         function editarVenta(id) {
+            // Validación de permisos - Solo admin puede editar
+            if (!puedeEditarVentas()) {
+                mostrarModalInfo('Acceso Denegado', '<p style="text-align: center; color: #dc2626;">No tienes permisos para editar ventas.</p><p style="text-align: center; font-size: 0.85rem; color: #64748b; margin-top: 0.5rem;">Solo el administrador puede modificar registros.</p>', '🔒');
+                return;
+            }
+
             const venta = salidasData.find(s => s.id === id);
             if (!venta) {
                 mostrarModalInfo('Error', '<p style="text-align: center; color: #dc2626;">Venta no encontrada</p>', '❌');
@@ -5678,6 +5696,12 @@
         var ventaIdParaEliminar = null;
 
         function eliminarVenta(id) {
+            // Validación de permisos - Solo admin puede eliminar
+            if (!puedeEditarVentas()) {
+                mostrarModalInfo('Acceso Denegado', '<p style="text-align: center; color: #dc2626;">No tienes permisos para eliminar ventas.</p><p style="text-align: center; font-size: 0.85rem; color: #64748b; margin-top: 0.5rem;">Solo el administrador puede eliminar registros.</p>', '🔒');
+                return;
+            }
+
             ventaIdParaEliminar = id;
             var html = '<div id="modalConfirmarEliminarVenta" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; padding: 1rem;">';
             html += '<div style="background: white; border-radius: 16px; width: 100%; max-width: 400px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">';
@@ -7479,6 +7503,7 @@
                                 <circle cx="12" cy="12" r="3"></circle>
                             </svg>
                         </button>
+                        ${puedeEditarVentas() ? `
                         <button class="btn-icon edit" onclick="editEntry(${entry.id})" title="Editar">
                             <svg viewBox="0 0 24 24">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -7493,6 +7518,7 @@
                                 <line x1="14" y1="11" x2="14" y2="17"></line>
                             </svg>
                         </button>
+                        ` : ''}
                     </div>
                 </div>
             `).join('');
@@ -7586,6 +7612,12 @@
         let deleteEntryId = null;
 
         function showDeleteConfirm(id) {
+            // Validación de permisos - Solo admin puede eliminar
+            if (!puedeEditarVentas()) {
+                mostrarModalInfo('Acceso Denegado', '<p style="text-align: center; color: #dc2626;">No tienes permisos para eliminar registros.</p><p style="text-align: center; font-size: 0.85rem; color: #64748b; margin-top: 0.5rem;">Solo el administrador puede eliminar datos.</p>', '🔒');
+                return;
+            }
+
             deleteEntryId = id;
             document.getElementById('confirmOverlay').classList.add('active');
         }
@@ -7609,6 +7641,12 @@
         let editingEntryId = null;
 
         function editEntry(id) {
+            // Validación de permisos - Solo admin puede editar
+            if (!puedeEditarVentas()) {
+                mostrarModalInfo('Acceso Denegado', '<p style="text-align: center; color: #dc2626;">No tienes permisos para editar registros.</p><p style="text-align: center; font-size: 0.85rem; color: #64748b; margin-top: 0.5rem;">Solo el administrador puede modificar datos.</p>', '🔒');
+                return;
+            }
+
             const entry = entries.find(e => e.id === id);
             if (!entry) return;
 
@@ -7816,7 +7854,7 @@
                 '<div><div style="font-size: 0.7rem; color: #94a3b8;">Acidez</div><div style="font-weight: 600;">' + (entry.acidez || '-') + ' %</div></div>' +
                 '<div><div style="font-size: 0.7rem; color: #94a3b8;">Grados de Sal</div><div style="font-weight: 600;">' + (entry.gradosSal || '-') + ' °Bé</div></div>' +
                 '<div><div style="font-size: 0.7rem; color: #94a3b8;">pH</div><div style="font-weight: 600;">' + (entry.ph || '-') + '</div></div>' +
-                '<div><div style="font-size: 0.7rem; color: #0369a1;">Agua</div><div style="font-weight: 600; color: #0369a1;">' + (entry.aguaCalidad || '-') + ' m³</div></div>' +
+                '<div><div style="font-size: 0.7rem; color: #0369a1;">Agua</div><div style="font-weight: 600; color: #0369a1;">' + (entry.aguaCalidad || '-') + '</div></div>' +
                 '</div>' +
                 '</div>' +
                 // Tipo de Envase - SIEMPRE mostrar
@@ -8015,6 +8053,9 @@
 
         // Filter reports based on period and filters
         function filtrarReportes() {
+            // IMPORTANTE: Sincronizar con los datos más recientes de localStorage
+            entries = JSON.parse(localStorage.getItem('aceitunaEntries')) || [];
+
             const periodo = document.getElementById('reportePeriodo').value;
             const tipoEnvase = document.getElementById('reporteTipoEnvase').value;
             const loteSeleccionado = document.getElementById('reporteLote').value;
@@ -8134,7 +8175,8 @@
             noMessage.style.display = 'none';
 
             let totalKilos = 0;
-            let totalValorCalibres = 0;
+            let totalValorCalibres = 0; // Valor de venta
+            let totalValorCompra = 0;   // Valor de compra
             let rowIndex = 0;
 
             // Sort by lote then date descending
@@ -8150,7 +8192,8 @@
             let html = '';
             let currentLote = null;
             let loteKilos = 0;
-            let loteValor = 0;
+            let loteValor = 0;        // Valor de compra del lote
+            let loteValorVenta = 0;   // Valor de venta del lote
             let loteCompraReal = 0;
             let loteGanancias = 0;
             let loteGastosOperativos = 0;
@@ -8176,7 +8219,8 @@
                             ${ocultarPrecios ? '' : `<td style="padding: 0.5rem; text-align: right; font-size: 0.85rem;">S/${loteValor.toFixed(2)}</td>`}
                             ${ocultarPrecios ? '' : '<td style="padding: 0.5rem; text-align: center; font-size: 0.85rem;">-</td>'}
                             ${ocultarPrecios ? '' : `<td style="padding: 0.5rem; text-align: right; font-size: 0.85rem;">S/${loteGastosOperativos.toFixed(2)}</td>`}
-                            ${ocultarPrecios ? '' : `<td style="padding: 0.5rem; text-align: right; font-weight: 700; font-size: 0.85rem;">S/${loteGananciaNeta.toFixed(2)}</td>`}
+                            ${ocultarPrecios ? '' : `<td style="padding: 0.5rem; text-align: right; font-size: 0.85rem;">S/${loteValorVenta.toFixed(2)}</td>`}
+                            ${ocultarPrecios ? '' : `<td style="padding: 0.5rem; text-align: right; font-weight: 700; font-size: 0.85rem; color: ${loteGananciaNeta >= 0 ? '#16a34a' : '#dc2626'};">S/${loteGananciaNeta.toFixed(2)}</td>`}
                         </tr>
                     `;
                 }
@@ -8184,9 +8228,16 @@
             };
 
             data.forEach((entry, dataIndex) => {
-                const cantidad = parseFloat(entry.cantidad) || 0;
+                // Calcular Kg desde la suma de los calibres (más preciso)
+                let entryKilos = 0;
+                if (entry.calibres && entry.calibres.length > 0) {
+                    entryKilos = entry.calibres.reduce((sum, c) => sum + (parseFloat(c.subtotal) || 0), 0);
+                } else {
+                    // Fallback al campo cantidad si no hay calibres
+                    entryKilos = parseFloat(entry.cantidad) || 0;
+                }
 
-                totalKilos += cantidad;
+                totalKilos += entryKilos;
 
                 // Añadir separador de lote si cambia
                 if (entry.codigoLote !== currentLote && entry.codigoLote) {
@@ -8196,14 +8247,15 @@
                         // Resetear acumuladores para el nuevo lote
                         loteKilos = 0;
                         loteValor = 0;
+                        loteValorVenta = 0;
                         loteCompraReal = 0;
                         loteGanancias = 0;
                         loteGastosOperativos = 0;
                     }
 
                     currentLote = entry.codigoLote;
-                    // Total columnas: 10 sin precios, 15 con precios (6+1+3+1+4)
-                    const totalCols = ocultarPrecios ? 10 : 15;
+                    // Total columnas: 10 sin precios, 16 con precios (6+1+3+1+5)
+                    const totalCols = ocultarPrecios ? 10 : 16;
                     html += `
                         <tr style="background: #374151; color: white;">
                             <td colspan="${totalCols}" style="padding: 0.5rem; font-weight: 600; font-size: 0.85rem;">
@@ -8214,9 +8266,9 @@
                 }
 
                 // Acumular kilos del lote y costo de compra real
-                loteKilos += cantidad;
+                loteKilos += entryKilos;
                 const precioCompra = parseFloat(entry.precio) || 0;
-                loteCompraReal += precioCompra * cantidad;
+                loteCompraReal += precioCompra * entryKilos;
 
                 // Acumular gastos operativos del lote
                 const transporteStr = entry.transporteTotal || '0';
@@ -8244,17 +8296,22 @@
                         const calibreId = `${entry.id}_${idx}`;
                         const subtotalCalibre = calibre.subtotal || 0;
 
+                        // Valor de COMPRA: Precio Compra × Subtotal Kg
+                        const valorCompraCalibre = precioCompra * subtotalCalibre;
+
                         // Precio de venta: editable en simulación
                         const precioVentaCalibre = preciosSimulados[calibreId] !== undefined ? preciosSimulados[calibreId] : (calibre.precio || 0);
-                        const valorCalibre = modoSimularVenta ? (precioVentaCalibre * subtotalCalibre) : (calibre.valorTotal || 0);
+                        const valorVentaCalibre = modoSimularVenta ? (precioVentaCalibre * subtotalCalibre) : (calibre.valorTotal || 0);
 
                         // Calcular ganancia del calibre: (Precio Venta - Precio Compra) × Subtotal
                         const gananciaCalibre = (precioVentaCalibre - precioCompra) * subtotalCalibre;
                         loteGanancias += gananciaCalibre;
                         totalGanancias += gananciaCalibre;
 
-                        totalValorCalibres += valorCalibre;
-                        loteValor += valorCalibre; // Acumular valor del lote
+                        totalValorCalibres += valorVentaCalibre;
+                        totalValorCompra += valorCompraCalibre; // Acumular valor de COMPRA total
+                        loteValor += valorCompraCalibre; // Acumular valor de COMPRA del lote
+                        loteValorVenta += valorVentaCalibre; // Acumular valor de VENTA del lote
 
                         // Celda de Precio de Venta - editable en modo simulación
                         let precioVentaCeldaHtml = '';
@@ -8275,8 +8332,8 @@
                             } else {
                                 precioVentaCeldaHtml = `<td style="padding: 0.5rem; text-align: right; font-size: 0.85rem;">${precioVentaCalibre > 0 ? 'S/' + precioVentaCalibre.toFixed(2) : '-'}</td>`;
                             }
-                            // Celda de ganancia - sin colores llamativos
-                            gananciaCeldaHtml = `<td data-ganancia-calibre="${calibreId}" style="padding: 0.5rem; text-align: right; font-weight: 600; font-size: 0.85rem;">${precioVentaCalibre > 0 ? 'S/' + gananciaCalibre.toFixed(2) : '-'}</td>`;
+                            // Celda de Valor de Venta (Kg × Precio Venta)
+                            gananciaCeldaHtml = `<td data-ganancia-calibre="${calibreId}" style="padding: 0.5rem; text-align: right; font-weight: 600; font-size: 0.85rem;">${precioVentaCalibre > 0 ? 'S/' + valorVentaCalibre.toFixed(2) : '-'}</td>`;
                         }
 
                         html += `
@@ -8292,10 +8349,11 @@
                                 <td style="padding: 0.5rem; text-align: right; font-size: 0.85rem;">${calibre.kilosPorBidon}</td>
                                 <td style="padding: 0.5rem; text-align: right; font-size: 0.85rem;">${calibre.sobras}</td>
                                 <td style="padding: 0.5rem; text-align: right; font-weight: 600; font-size: 0.85rem;">${subtotalCalibre.toFixed(1)} Kg</td>
-                                ${ocultarPrecios ? '' : `<td data-valor-calibre="${calibreId}" style="padding: 0.5rem; text-align: right; font-size: 0.85rem;">${valorCalibre > 0 ? 'S/' + valorCalibre.toFixed(2) : '-'}</td>`}
+                                ${ocultarPrecios ? '' : `<td data-valor-calibre="${calibreId}" style="padding: 0.5rem; text-align: right; font-size: 0.85rem;">${valorCompraCalibre > 0 ? 'S/' + valorCompraCalibre.toFixed(2) : '-'}</td>`}
                                 ${ocultarPrecios ? '' : precioVentaCeldaHtml}
                                 ${ocultarPrecios ? '' : '<td style="padding: 0.5rem; text-align: right; color: #9ca3af; font-size: 0.85rem;">-</td>'}
                                 ${ocultarPrecios ? '' : gananciaCeldaHtml}
+                                ${ocultarPrecios ? '' : `<td style="padding: 0.5rem; text-align: right; font-weight: 600; font-size: 0.85rem; color: ${gananciaCalibre >= 0 ? '#16a34a' : '#dc2626'};">${precioVentaCalibre > 0 ? 'S/' + gananciaCalibre.toFixed(2) : '-'}</td>`}
                             </tr>
                         `;
                     });
@@ -8316,6 +8374,7 @@
                             <td style="padding: 0.5rem; text-align: right; font-size: 0.85rem;">-</td>
                             <td style="padding: 0.5rem; text-align: right; font-size: 0.85rem;">-</td>
                             <td style="padding: 0.5rem; text-align: right; color: #9ca3af; font-size: 0.85rem;">-</td>
+                            ${ocultarPrecios ? '' : '<td style="padding: 0.5rem; text-align: right; font-size: 0.85rem;">-</td>'}
                             ${ocultarPrecios ? '' : '<td style="padding: 0.5rem; text-align: right; font-size: 0.85rem;">-</td>'}
                             ${ocultarPrecios ? '' : '<td style="padding: 0.5rem; text-align: right; font-size: 0.85rem;">-</td>'}
                             ${ocultarPrecios ? '' : '<td style="padding: 0.5rem; text-align: right; font-size: 0.85rem;">-</td>'}
@@ -8356,7 +8415,11 @@
                 const otrosGastosStr = entry.totalOtrosGastos || '0';
                 const otrosGastosNum = parseFloat(otrosGastosStr.replace('S/', '').replace(',', '')) || 0;
 
-                totalGastosOperativos += transporteNum + varonesNum + mujeresNum + traspaleadoresNum + otrosGastosNum;
+                // Agregar Costo de Salmuera
+                const salmueraStr = entry.totalCostoSalmuera || '0';
+                const salmueraNum = parseFloat(salmueraStr.replace('S/', '').replace(',', '')) || 0;
+
+                totalGastosOperativos += transporteNum + varonesNum + mujeresNum + traspaleadoresNum + otrosGastosNum + salmueraNum;
             });
 
             // Ganancia Neta Total = Ganancia Bruta Total - Gastos Operativos Totales
@@ -8366,10 +8429,11 @@
                 <tr style="background: #1f2937; color: white; font-weight: 600;">
                     <td colspan="${colspanTotal}" style="padding: 0.6rem; text-align: right; font-size: 0.85rem;">TOTAL GENERAL</td>
                     <td style="padding: 0.6rem; text-align: right; font-weight: 700; font-size: 0.9rem;">${totalKilos.toFixed(1)} Kg</td>
-                    ${ocultarPrecios ? '' : `<td style="padding: 0.6rem; text-align: right; font-size: 0.9rem;">S/${totalValorCalibres.toFixed(2)}</td>`}
+                    ${ocultarPrecios ? '' : `<td style="padding: 0.6rem; text-align: right; font-size: 0.9rem;">S/${totalValorCompra.toFixed(2)}</td>`}
                     ${ocultarPrecios ? '' : '<td style="padding: 0.6rem; text-align: center; font-size: 0.9rem;">-</td>'}
                     ${ocultarPrecios ? '' : `<td style="padding: 0.6rem; text-align: right; font-size: 0.9rem;">S/${totalGastosOperativos.toFixed(2)}</td>`}
-                    ${ocultarPrecios ? '' : `<td style="padding: 0.6rem; text-align: right; font-weight: 700; font-size: 0.9rem;">S/${totalGananciaNeta.toFixed(2)}</td>`}
+                    ${ocultarPrecios ? '' : `<td style="padding: 0.6rem; text-align: right; font-size: 0.9rem;">S/${totalValorCalibres.toFixed(2)}</td>`}
+                    ${ocultarPrecios ? '' : `<td style="padding: 0.6rem; text-align: right; font-weight: 700; font-size: 0.9rem; color: ${totalGananciaNeta >= 0 ? '#16a34a' : '#dc2626'};">S/${totalGananciaNeta.toFixed(2)}</td>`}
                 </tr>
             `;
 
@@ -8383,10 +8447,15 @@
             let costoTraspaleadores = 0;
 
             data.forEach(entry => {
-                // Costo de aceitunas: precio × cantidad
+                // Costo de aceitunas: precio × kg (usando suma de calibres)
                 const precio = parseFloat(entry.precio) || 0;
-                const cantidad = parseFloat(entry.cantidad) || 0;
-                costoAceitunas += precio * cantidad;
+                let entryKg = 0;
+                if (entry.calibres && entry.calibres.length > 0) {
+                    entryKg = entry.calibres.reduce((sum, c) => sum + (parseFloat(c.subtotal) || 0), 0);
+                } else {
+                    entryKg = parseFloat(entry.cantidad) || 0;
+                }
+                costoAceitunas += precio * entryKg;
 
                 // Costo de transporte
                 const transporteStr = entry.transporteTotal || '';
@@ -8721,12 +8790,16 @@
 
         // Export report to Excel (.xlsx)
         function exportarReporteExcel() {
+            // IMPORTANTE: Recargar datos más recientes de localStorage
+            const entriesActualizados = JSON.parse(localStorage.getItem('aceitunaEntries')) || [];
+
             const periodo = document.getElementById('reportePeriodo').value;
             const tipoEnvase = document.getElementById('reporteTipoEnvase').value;
+            const loteSeleccionado = document.getElementById('reporteLote').value;
             const fechaInicio = document.getElementById('reporteFechaInicio').value;
             const fechaFin = document.getElementById('reporteFechaFin').value;
 
-            let filteredEntries = [...entries];
+            let filteredEntries = [...entriesActualizados];
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
@@ -8760,8 +8833,14 @@
                 });
             }
 
+            // Filtrar por tipo de envase
             if (tipoEnvase) {
                 filteredEntries = filteredEntries.filter(e => e.tipoEnvase === tipoEnvase);
+            }
+
+            // Filtrar por lote seleccionado
+            if (loteSeleccionado) {
+                filteredEntries = filteredEntries.filter(e => e.codigoLote === loteSeleccionado);
             }
 
             if (filteredEntries.length === 0) {
@@ -8825,37 +8904,49 @@
             excel += '  <Cell ss:StyleID="Header"><Data ss:Type="String">Sobras</Data></Cell>\n';
             excel += '  <Cell ss:StyleID="Header"><Data ss:Type="String">Subtotal Kg</Data></Cell>\n';
             excel += '  <Cell ss:StyleID="Header"><Data ss:Type="String">Valor Compra</Data></Cell>\n';
+            excel += '  <Cell ss:StyleID="Header"><Data ss:Type="String">P. Venta</Data></Cell>\n';
             excel += '  <Cell ss:StyleID="Header"><Data ss:Type="String">Gastos Op.</Data></Cell>\n';
-            excel += '  <Cell ss:StyleID="Header"><Data ss:Type="String">Gan. Netas</Data></Cell>\n';
+            excel += '  <Cell ss:StyleID="Header"><Data ss:Type="String">Valor Venta</Data></Cell>\n';
+            excel += '  <Cell ss:StyleID="Header"><Data ss:Type="String">Ganancia</Data></Cell>\n';
             excel += '</Row>\n';
 
             let totalKilos = 0;
             let totalValorCalibres = 0;
             let totalGastosOperativos = 0;
             let totalGanancias = 0;
+            let totalValorVenta = 0;
             let currentLote = null;
             let loteKilos = 0;
-            let loteValor = 0;
+            let loteValor = 0;       // Valor de compra del lote
+            let loteValorVenta = 0;  // Valor de venta del lote
             let loteGastosOp = 0;
             let loteGanancias = 0;
 
             // Function to add lote subtotal row
             const addLoteSubtotal = () => {
                 if (currentLote && (loteKilos > 0 || loteValor > 0)) {
-                    const loteGananciaNeta = loteGanancias - loteGastosOp;
+                    const loteGananciaNeta = loteValorVenta - loteValor - loteGastosOp;
                     excel += '<Row>\n';
                     excel += '  <Cell ss:StyleID="Subtotal" ss:MergeAcross="10"><Data ss:Type="String">Subtotal ' + currentLote + '</Data></Cell>\n';
                     excel += '  <Cell ss:StyleID="Subtotal"><Data ss:Type="Number">' + loteKilos.toFixed(1) + '</Data></Cell>\n';
                     excel += '  <Cell ss:StyleID="Subtotal"><Data ss:Type="Number">' + loteValor.toFixed(2) + '</Data></Cell>\n';
+                    excel += '  <Cell ss:StyleID="Subtotal"><Data ss:Type="String">-</Data></Cell>\n';
                     excel += '  <Cell ss:StyleID="Compra"><Data ss:Type="Number">' + loteGastosOp.toFixed(2) + '</Data></Cell>\n';
+                    excel += '  <Cell ss:StyleID="Subtotal"><Data ss:Type="Number">' + loteValorVenta.toFixed(2) + '</Data></Cell>\n';
                     excel += '  <Cell ss:StyleID="Venta"><Data ss:Type="Number">' + loteGananciaNeta.toFixed(2) + '</Data></Cell>\n';
                     excel += '</Row>\n';
                 }
             };
 
             filteredEntries.forEach(entry => {
-                const cantidad = parseFloat(entry.cantidad) || 0;
-                totalKilos += cantidad;
+                // Calcular Kg desde la suma de los calibres (más preciso)
+                let entryKilos = 0;
+                if (entry.calibres && entry.calibres.length > 0) {
+                    entryKilos = entry.calibres.reduce((sum, c) => sum + (parseFloat(c.subtotal) || 0), 0);
+                } else {
+                    entryKilos = parseFloat(entry.cantidad) || 0;
+                }
+                totalKilos += entryKilos;
 
                 // Calcular gastos operativos de esta entrada
                 const transporteStr = entry.transporteTotal || '0';
@@ -8883,25 +8974,36 @@
                         addLoteSubtotal();
                         loteKilos = 0;
                         loteValor = 0;
+                        loteValorVenta = 0;
                         loteGastosOp = 0;
                         loteGanancias = 0;
                     }
                     currentLote = entry.codigoLote;
                     // Add lote header row
                     excel += '<Row>\n';
-                    excel += '  <Cell ss:StyleID="LoteHeader" ss:MergeAcross="13"><Data ss:Type="String">LOTE: ' + currentLote + '</Data></Cell>\n';
+                    excel += '  <Cell ss:StyleID="LoteHeader" ss:MergeAcross="16"><Data ss:Type="String">LOTE: ' + currentLote + '</Data></Cell>\n';
                     excel += '</Row>\n';
                 }
 
-                loteKilos += cantidad;
+                loteKilos += entryKilos;
                 loteGastosOp += entryGastosOp;
                 totalGastosOperativos += entryGastosOp;
 
                 // Si tiene calibres múltiples
                 if (entry.calibres && entry.calibres.length > 0) {
-                    const entryValorTotal = entry.calibres.reduce((sum, c) => sum + (c.valorTotal || 0), 0);
-                    loteValor += entryValorTotal;
-                    totalValorCalibres += entryValorTotal;
+                    // Calcular valor de compra por calibres
+                    let entryValorCompra = 0;
+                    let entryValorVenta = 0;
+                    entry.calibres.forEach(c => {
+                        const subtotalCalibre = parseFloat(c.subtotal) || 0;
+                        const precioVentaCalibre = parseFloat(c.precio) || 0;
+                        entryValorCompra += precioCompra * subtotalCalibre;
+                        entryValorVenta += precioVentaCalibre * subtotalCalibre;
+                    });
+                    loteValor += entryValorCompra;
+                    loteValorVenta += entryValorVenta;
+                    totalValorCalibres += entryValorCompra;
+                    totalValorVenta += entryValorVenta;
 
                     // Calcular ganancias por calibre
                     entry.calibres.forEach(c => {
@@ -8911,8 +9013,11 @@
                     });
 
                     entry.calibres.forEach((calibre, idx) => {
-                        const gananciaCalibre = ((calibre.precio || 0) - precioCompra) * (calibre.subtotal || 0);
-                        const valorCompraCalibre = precioCompra * (calibre.subtotal || 0);
+                        const subtotalCalibre = parseFloat(calibre.subtotal) || 0;
+                        const precioVentaCalibre = parseFloat(calibre.precio) || 0;
+                        const valorCompraCalibre = precioCompra * subtotalCalibre;
+                        const valorVentaCalibre = precioVentaCalibre * subtotalCalibre;
+                        const gananciaCalibre = valorVentaCalibre - valorCompraCalibre;
                         excel += '<Row>\n';
                         excel += '  <Cell ss:StyleID="Data"><Data ss:Type="String">' + (entry.fecha || '') + '</Data></Cell>\n';
                         excel += '  <Cell ss:StyleID="Data"><Data ss:Type="String">' + (entry.codigoLote || '') + '</Data></Cell>\n';
@@ -8924,20 +9029,22 @@
                         excel += '  <Cell ss:StyleID="Number"><Data ss:Type="Number">' + calibre.bidones + '</Data></Cell>\n';
                         excel += '  <Cell ss:StyleID="Number"><Data ss:Type="Number">' + calibre.kilosPorBidon + '</Data></Cell>\n';
                         excel += '  <Cell ss:StyleID="Number"><Data ss:Type="Number">' + calibre.sobras + '</Data></Cell>\n';
-                        excel += '  <Cell ss:StyleID="Number"><Data ss:Type="Number">' + calibre.subtotal.toFixed(1) + '</Data></Cell>\n';
+                        excel += '  <Cell ss:StyleID="Number"><Data ss:Type="Number">' + subtotalCalibre.toFixed(1) + '</Data></Cell>\n';
                         excel += '  <Cell ss:StyleID="Number"><Data ss:Type="Number">' + valorCompraCalibre.toFixed(2) + '</Data></Cell>\n';
+                        excel += '  <Cell ss:StyleID="Number"><Data ss:Type="Number">' + precioVentaCalibre.toFixed(2) + '</Data></Cell>\n';
                         // Gastos Op: solo mostrar en primera fila del entry
                         if (idx === 0) {
                             excel += '  <Cell ss:StyleID="Compra"><Data ss:Type="Number">' + entryGastosOp.toFixed(2) + '</Data></Cell>\n';
-                            excel += '  <Cell ss:StyleID="Venta"><Data ss:Type="Number">' + gananciaCalibre.toFixed(2) + '</Data></Cell>\n';
                         } else {
                             excel += '  <Cell ss:StyleID="Data"><Data ss:Type="String">-</Data></Cell>\n';
-                            excel += '  <Cell ss:StyleID="Number"><Data ss:Type="Number">' + gananciaCalibre.toFixed(2) + '</Data></Cell>\n';
                         }
+                        excel += '  <Cell ss:StyleID="Number"><Data ss:Type="Number">' + valorVentaCalibre.toFixed(2) + '</Data></Cell>\n';
+                        excel += '  <Cell ss:StyleID="Venta"><Data ss:Type="Number">' + gananciaCalibre.toFixed(2) + '</Data></Cell>\n';
                         excel += '</Row>\n';
                     });
                 } else {
                     // Sin calibres
+                    const cantidad = parseFloat(entry.cantidad) || 0;
                     const valorCompraEntry = precioCompra * cantidad;
                     excel += '<Row>\n';
                     excel += '  <Cell ss:StyleID="Data"><Data ss:Type="String">' + (entry.fecha || '') + '</Data></Cell>\n';
@@ -8952,7 +9059,9 @@
                     excel += '  <Cell ss:StyleID="Data"><Data ss:Type="String">-</Data></Cell>\n';
                     excel += '  <Cell ss:StyleID="Number"><Data ss:Type="Number">' + cantidad.toFixed(1) + '</Data></Cell>\n';
                     excel += '  <Cell ss:StyleID="Number"><Data ss:Type="Number">' + valorCompraEntry.toFixed(2) + '</Data></Cell>\n';
+                    excel += '  <Cell ss:StyleID="Data"><Data ss:Type="String">-</Data></Cell>\n';
                     excel += '  <Cell ss:StyleID="Compra"><Data ss:Type="Number">' + entryGastosOp.toFixed(2) + '</Data></Cell>\n';
+                    excel += '  <Cell ss:StyleID="Data"><Data ss:Type="String">-</Data></Cell>\n';
                     excel += '  <Cell ss:StyleID="Data"><Data ss:Type="String">-</Data></Cell>\n';
                     excel += '</Row>\n';
                 }
@@ -8962,12 +9071,14 @@
             addLoteSubtotal();
 
             // Add totals row
-            const totalGananciaNeta = totalGanancias - totalGastosOperativos;
+            const totalGananciaNeta = totalValorVenta - totalValorCalibres - totalGastosOperativos;
             excel += '<Row>\n';
             excel += '  <Cell ss:StyleID="Total" ss:MergeAcross="10"><Data ss:Type="String">TOTAL GENERAL</Data></Cell>\n';
             excel += '  <Cell ss:StyleID="Total"><Data ss:Type="Number">' + totalKilos.toFixed(1) + '</Data></Cell>\n';
             excel += '  <Cell ss:StyleID="Total"><Data ss:Type="Number">' + totalValorCalibres.toFixed(2) + '</Data></Cell>\n';
+            excel += '  <Cell ss:StyleID="Total"><Data ss:Type="String">-</Data></Cell>\n';
             excel += '  <Cell ss:StyleID="Compra"><Data ss:Type="Number">' + totalGastosOperativos.toFixed(2) + '</Data></Cell>\n';
+            excel += '  <Cell ss:StyleID="Total"><Data ss:Type="Number">' + totalValorVenta.toFixed(2) + '</Data></Cell>\n';
             excel += '  <Cell ss:StyleID="Venta"><Data ss:Type="Number">' + totalGananciaNeta.toFixed(2) + '</Data></Cell>\n';
             excel += '</Row>\n';
 
@@ -8990,6 +9101,9 @@
 
         // Export only selected lote to Excel
         function exportarLoteExcel() {
+            // IMPORTANTE: Recargar datos más recientes de localStorage
+            const entriesActualizados = JSON.parse(localStorage.getItem('aceitunaEntries')) || [];
+
             const loteSeleccionado = document.getElementById('reporteLote').value;
 
             if (!loteSeleccionado) {
@@ -8997,8 +9111,8 @@
                 return;
             }
 
-            // Filter only by selected lote
-            let filteredEntries = entries.filter(e => e.codigoLote === loteSeleccionado);
+            // Filter only by selected lote from updated entries
+            let filteredEntries = entriesActualizados.filter(e => e.codigoLote === loteSeleccionado);
 
             if (filteredEntries.length === 0) {
                 mostrarModalInfo('Aviso', '<p style="text-align: center; color: #64748b;">No hay datos para este lote</p>', '⚠️');
@@ -9070,10 +9184,16 @@
             filteredEntries.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
             filteredEntries.forEach(entry => {
-                const cantidad = parseFloat(entry.cantidad) || 0;
+                // Calcular Kg desde la suma de los calibres (más preciso)
+                let entryKilos = 0;
+                if (entry.calibres && entry.calibres.length > 0) {
+                    entryKilos = entry.calibres.reduce((sum, c) => sum + (parseFloat(c.subtotal) || 0), 0);
+                } else {
+                    entryKilos = parseFloat(entry.cantidad) || 0;
+                }
                 const costoCompra = parseFloat(entry.precio) || 0;
 
-                totalKilos += cantidad;
+                totalKilos += entryKilos;
                 totalCostoCompra += costoCompra;
 
                 if (entry.calibres && entry.calibres.length > 0) {
@@ -9932,6 +10052,12 @@
         // Initialize reports when section is shown
         const originalShowSection = showSection;
         showSection = function (section) {
+            // Bloquear acceso a secciones restringidas para no-admin
+            if ((section === 'salida' || section === 'record') && !esAdmin()) {
+                mostrarModalInfo('Acceso Restringido', '<p style="text-align: center; color: #dc2626;">No tienes permisos para acceder a esta sección.</p><p style="text-align: center; font-size: 0.85rem; color: #64748b; margin-top: 0.5rem;">Contacta al administrador para más información.</p>', '🔒');
+                return; // No permitir cambio de sección
+            }
+
             originalShowSection(section);
             if (section === 'reportes') {
                 filtrarReportes();
